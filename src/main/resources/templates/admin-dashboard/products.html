@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Sản Phẩm - Admin</title>
+    <link rel="stylesheet" href="../src/styles/global.css">
+    <link rel="stylesheet" href="../src/styles/variables.css">
+    <link rel="stylesheet" href="../src/styles/components/navbar.css">
+    <link rel="stylesheet" href="../src/styles/components/sidebar.css">
+    <link rel="stylesheet" href="../src/styles/components/table.css">
+    <link rel="stylesheet" href="../src/styles/components/modal.css">
+    <link rel="stylesheet" href="../src/styles/pages/products.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="navbar" id="navbar"></nav>
+        <div class="main-content">
+            <aside class="sidebar" id="sidebar"></aside>
+            <main class="content">
+                <div class="products-container">
+                    <div class="page-header">
+                        <h1>Quản Lý Sản Phẩm</h1>
+                        <button class="btn btn-primary" id="addProductBtn">+ Thêm Sản Phẩm</button>
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm...">
+                    </div>
+                    <div class="table-container" id="productsTable"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Thêm/Sửa Sản Phẩm -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <span class="close" id="closeProductModal">&times;</span>
+            <h2 id="productModalTitle">Thêm Sản Phẩm</h2>
+            <form id="productForm">
+                <div class="form-group">
+                    <label for="productName">Tên Sản Phẩm:</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label for="productDescription">Mô Tả:</label>
+                    <textarea id="productDescription" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Giá:</label>
+                    <input type="number" id="productPrice" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="productDiscount">Giảm Giá (%):</label>
+                    <input type="number" id="productDiscount" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label for="productStock">Tồn Kho:</label>
+                    <input type="number" id="productStock" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Lưu</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../src/scripts/config.js"></script>
+    <script src="../src/scripts/utils/helpers.js"></script>
+    <script src="../src/scripts/api/products.api.js"></script>
+    <script src="../src/scripts/services/product.service.js"></script>
+    <script src="../src/scripts/components/navbar.js"></script>
+    <script src="../src/scripts/components/sidebar.js"></script>
+    <script src="../src/scripts/pages/products.js"></script>
+    <script src="../src/scripts/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Người Dùng - Admin</title>
+    <link rel="stylesheet" href="../src/styles/global.css">
+    <link rel="stylesheet" href="../src/styles/variables.css">
+    <link rel="stylesheet" href="../src/styles/components/navbar.css">
+    <link rel="stylesheet" href="../src/styles/components/sidebar.css">
+    <link rel="stylesheet" href="../src/styles/components/table.css">
+    <link rel="stylesheet" href="../src/styles/components/modal.css">
+    <link rel="stylesheet" href="../src/styles/pages/users.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="navbar" id="navbar"></nav>
+        <div class="main-content">
+            <aside class="sidebar" id="sidebar"></aside>
+            <main class="content">
+                <div class="users-container">
+                    <div class="page-header">
+                        <h1>Quản Lý Người Dùng</h1>
+                        <button class="btn btn-primary" id="addUserBtn">+ Thêm Người Dùng</button>
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Tìm kiếm người dùng...">
+                    </div>
+                    <div class="table-container" id="usersTable"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Thêm/Sửa Người Dùng -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <span class="close" id="closeUserModal">&times;</span>
+            <h2 id="userModalTitle">Thêm Người Dùng</h2>
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="userName">Tên Người Dùng:</label>
+                    <input type="text" id="userName" required>
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Email:</label>
+                    <input type="email" id="userEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="userPassword">Mật Khẩu:</label>
+                    <input type="password" id="userPassword">
+                </div>
+                <div class="form-group">
+                    <label for="userRole">Vai Trò:</label>
+                    <select id="userRole">
+                        <option value="USER">Người Dùng</option>
+                        <option value="ADMIN">Quản Trị Viên</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Lưu</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../src/scripts/config.js"></script>
+    <script src="../src/scripts/utils/helpers.js"></script>
+    <script src="../src/scripts/api/users.api.js"></script>
+    <script src="../src/scripts/services/user.service.js"></script>
+    <script src="../src/scripts/components/navbar.js"></script>
+    <script src="../src/scripts/components/sidebar.js"></script>
+    <script src="../src/scripts/pages/users.js"></script>
+    <script src="../src/scripts/main.js"></script>
+</body>
+</html>

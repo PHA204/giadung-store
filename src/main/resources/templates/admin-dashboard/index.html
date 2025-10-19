@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Bảng Điều Khiển</title>
+    <link rel="stylesheet" href="../src/styles/global.css">
+    <link rel="stylesheet" href="../src/styles/variables.css">
+    <link rel="stylesheet" href="../src/styles/components/navbar.css">
+    <link rel="stylesheet" href="../src/styles/components/sidebar.css">
+    <link rel="stylesheet" href="../src/styles/pages/dashboard.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navbar -->
+        <nav class="navbar" id="navbar"></nav>
+
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar"></aside>
+
+            <!-- Content -->
+            <main class="content">
+                <div class="dashboard-container">
+                    <h1>Bảng Điều Khiển</h1>
+                    <div class="stats-grid" id="statsGrid"></div>
+                    <div class="dashboard-content" id="dashboardContent"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="../src/scripts/config.js"></script>
+    <script src="../src/scripts/utils/helpers.js"></script>
+    <script src="../src/scripts/api/users.api.js"></script>
+    <script src="../src/scripts/api/products.api.js"></script>
+    <script src="../src/scripts/api/carts.api.js"></script>
+    <script src="../src/scripts/services/user.service.js"></script>
+    <script src="../src/scripts/services/product.service.js"></script>
+    <script src="../src/scripts/services/cart.service.js"></script>
+    <script src="../src/scripts/components/navbar.js"></script>
+    <script src="../src/scripts/components/sidebar.js"></script>
+    <script src="../src/scripts/pages/dashboard.js"></script>
+    <script src="../src/scripts/main.js"></script>
+</body>
+</html>

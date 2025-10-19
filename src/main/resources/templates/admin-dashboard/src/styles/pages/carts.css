@@ -1,0 +1,28 @@
+.carts-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.carts-container h1 {
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--spacing-2xl);
+  color: var(--gray-900);
+}
+
+.search-bar {
+  margin-bottom: var(--spacing-lg);
+}
+
+.search-bar input {
+  max-width: 400px;
+}
+
+@media (max-width: 768px) {
+  .carts-container h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .search-bar input {
+    max-width: 100%;
+  }
+}
