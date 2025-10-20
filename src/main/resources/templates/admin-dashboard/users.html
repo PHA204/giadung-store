@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Người Dùng - Admin</title>
-    <link rel="stylesheet" href="../src/styles/global.css">
-    <link rel="stylesheet" href="../src/styles/variables.css">
-    <link rel="stylesheet" href="../src/styles/components/navbar.css">
-    <link rel="stylesheet" href="../src/styles/components/sidebar.css">
-    <link rel="stylesheet" href="../src/styles/components/table.css">
-    <link rel="stylesheet" href="../src/styles/components/modal.css">
-    <link rel="stylesheet" href="../src/styles/pages/users.css">
+    <link rel="stylesheet" href="src/styles/variables.css">
+    <link rel="stylesheet" href="src/styles/global.css">
+    <link rel="stylesheet" href="src/styles/components/navbar.css">
+    <link rel="stylesheet" href="src/styles/components/sidebar.css">
+    <link rel="stylesheet" href="src/styles/components/table.css">
+    <link rel="stylesheet" href="src/styles/components/modal.css">
+    <link rel="stylesheet" href="src/styles/pages/users.css">
 </head>
 <body>
     <div class="app-container">
@@ -39,7 +39,7 @@
             <h2 id="userModalTitle">Thêm Người Dùng</h2>
             <form id="userForm">
                 <div class="form-group">
-                    <label for="userName">Tên Người Dùng:</label>
+                    <label for="userName">Họ và Tên:</label>
                     <input type="text" id="userName" required>
                 </div>
                 <div class="form-group">
@@ -49,12 +49,21 @@
                 <div class="form-group">
                     <label for="userPassword">Mật Khẩu:</label>
                     <input type="password" id="userPassword">
+                    <small>Để trống nếu không muốn thay đổi mật khẩu</small>
+                </div>
+                <div class="form-group">
+                    <label for="userPhone">Số điện thoại:</label>
+                    <input type="text" id="userPhone">
+                </div>
+                <div class="form-group">
+                    <label for="userAddress">Địa chỉ:</label>
+                    <textarea id="userAddress" rows="3"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="userRole">Vai Trò:</label>
                     <select id="userRole">
-                        <option value="USER">Người Dùng</option>
-                        <option value="ADMIN">Quản Trị Viên</option>
+                        <option value="customer">Khách hàng</option>
+                        <option value="admin">Quản trị viên</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary">Lưu</button>
@@ -62,13 +71,12 @@
         </div>
     </div>
 
-    <script src="../src/scripts/config.js"></script>
-    <script src="../src/scripts/utils/helpers.js"></script>
-    <script src="../src/scripts/api/users.api.js"></script>
-    <script src="../src/scripts/services/user.service.js"></script>
-    <script src="../src/scripts/components/navbar.js"></script>
-    <script src="../src/scripts/components/sidebar.js"></script>
-    <script src="../src/scripts/pages/users.js"></script>
-    <script src="../src/scripts/main.js"></script>
+    <!-- Load scripts theo đúng thứ tự -->
+    <script src="src/scripts/config.js"></script>
+    <script src="src/scripts/utils/helpers.js"></script>
+    <script src="src/scripts/api/users.api.js"></script>
+    <script src="src/scripts/pages/users.js"></script>
+    <script src="src/scripts/components/navbar.js"></script>
+    <script src="src/scripts/components/sidebar.js"></script>
 </body>
 </html>

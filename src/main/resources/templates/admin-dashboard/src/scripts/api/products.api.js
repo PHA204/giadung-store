@@ -1,18 +1,5 @@
 // API gọi cho Products
 
-// Declare API_CONFIG and API_ENDPOINTS variables
-const API_CONFIG = {
-  BASE_URL: "https://api.example.com/",
-  HEADERS: {
-    "Content-Type": "application/json",
-    Authorization: "Bearer your_token_here",
-  },
-}
-
-const API_ENDPOINTS = {
-  PRODUCTS: "products",
-}
-
 /**
  * Lấy danh sách tất cả sản phẩm
  */
@@ -93,7 +80,7 @@ async function deleteProduct(id) {
       headers: API_CONFIG.HEADERS,
     })
     if (!response.ok) throw new Error("Lỗi khi xóa sản phẩm")
-    return await response.json()
+    return true
   } catch (error) {
     console.error("Error deleting product:", error)
     throw error

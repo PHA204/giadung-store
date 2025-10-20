@@ -7,11 +7,14 @@ function renderSidebar() {
   const currentPage = window.location.pathname.split("/").pop() || "index.html"
 
   sidebar.innerHTML = `
+        <div class="sidebar-header">
+            <h3>Bảng Điều Khiển</h3>
+        </div>
         <ul class="sidebar-menu">
             <li class="sidebar-item">
                 <a href="index.html" class="sidebar-link ${currentPage === "index.html" ? "active" : ""}">
                     <span class="sidebar-icon">📊</span>
-                    <span>Bảng Điều Khiển</span>
+                    <span>Trang Chủ</span>
                 </a>
             </li>
             <li class="sidebar-item">

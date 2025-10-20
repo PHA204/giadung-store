@@ -14,6 +14,7 @@ function formatCurrency(value) {
  * Định dạng ngày tháng
  */
 function formatDate(date) {
+  if (!date) return "N/A"
   return new Intl.DateTimeFormat("vi-VN", {
     year: "numeric",
     month: "2-digit",
@@ -54,15 +55,6 @@ function confirmAction(message) {
 }
 
 /**
- * Lấy giá trị từ form
- */
-function getFormData(formId) {
-  const form = document.getElementById(formId)
-  const formData = new FormData(form)
-  return Object.fromEntries(formData)
-}
-
-/**
  * Xóa dữ liệu form
  */
 function clearForm(formId) {
@@ -76,7 +68,7 @@ function clearForm(formId) {
 function showLoading(elementId) {
   const element = document.getElementById(elementId)
   if (element) {
-    element.innerHTML = '<p style="text-align: center; padding: 20px;">Đang tải...</p>'
+    element.innerHTML = '<p style="text-align: center; padding: 40px; color: #6b7280;">⏳ Đang tải dữ liệu...</p>'
   }
 }
 
@@ -97,5 +89,12 @@ function openModal(modalId) {
   const modal = document.getElementById(modalId)
   if (modal) {
     modal.classList.add("show")
+  }
+}
+
+// Close modal khi click bên ngoài
+window.onclick = function(event) {
+  if (event.target.classList.contains('modal')) {
+    event.target.classList.remove('show')
   }
 }

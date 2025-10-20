@@ -11,7 +11,9 @@ const API_CONFIG = {
 const API_ENDPOINTS = {
   USERS: "/users",
   PRODUCTS: "/products",
-  CARTS: "/carts",
+  CARTS: "/cart",
+  BRANDS: "/brands",
+  CATEGORIES: "/categories",
 }
 
 // Thông báo
@@ -20,9 +22,4 @@ const MESSAGES = {
   ERROR: "Có lỗi xảy ra!",
   CONFIRM_DELETE: "Bạn có chắc chắn muốn xóa?",
   LOADING: "Đang tải...",
-}
-
-// Export
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = { API_CONFIG, API_ENDPOINTS, MESSAGES }
 }
