@@ -1,154 +1,88 @@
-// Logic cho trang Users
+// API calls cho Users
 
-let currentEditingUserId = null
-let allUsers = []
-
-async function loadUsers() {
+/**
+ * Lấy danh sách tất cả người dùng
+ */
+async function getAllUsers() {
   try {
-    showLoading("usersTable")
-    allUsers = await getAllUsers()
-    renderUsersTable(allUsers)
+    const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.USERS}`, {
+      method: "GET",
+      headers: API_CONFIG.HEADERS,
+    })
+    if (!response.ok) throw new Error("Lỗi khi lấy danh sách người dùng")
+    return await response.json()
   } catch (error) {
-    console.error("Error loading users:", error)
-    showNotification("Lỗi khi tải danh sách người dùng", "error")
+    console.error("Error fetching users:", error)
+    throw error
   }
 }
 
-function renderUsersTable(users) {
-  const table = document.getElementById("usersTable")
-  if (users.length === 0) {
-    table.innerHTML = '<p style="text-align: center; padding: 20px;">Không có người dùng nào</p>'
-    return
-  }
-
-  table.innerHTML = `
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tên</th>
-                    <th>Email</th>
-                    <th>Số điện thoại</th>
-                    <th>Vai Trò</th>
-                    <th>Trạng thái</th>
-                    <th>Ngày Tạo</th>
-                    <th>Hành Động</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${users
-                  .map(
-                    (user) => `
-                    <tr>
-                        <td>${user.userId}</td>
-                        <td>${user.fullName}</td>
-                        <td>${user.email}</td>
-                        <td>${user.phoneNumber || "N/A"}</td>
-                        <td><span class="badge ${user.role === "admin" ? "badge-danger" : "badge-info"}">${user.role || "customer"}</span></td>
-                        <td><span class="badge ${user.isActive ? "badge-success" : "badge-danger"}">${user.isActive ? "Hoạt động" : "Khóa"}</span></td>
-                        <td>${formatDate(user.createdAt)}</td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="action-btn action-btn-edit" onclick="editUser(${user.userId})">Sửa</button>
-                                <button class="action-btn action-btn-delete" onclick="deleteUserHandler(${user.userId})">Xóa</button>
-                            </div>
-                        </td>
-                    </tr>
-                `,
-                  )
-                  .join("")}
-            </tbody>
-        </table>
-    `
-}
-
-function editUser(id) {
-  const user = allUsers.find((u) => u.userId === id)
-  if (!user) return
-
-  currentEditingUserId = id
-  document.getElementById("userModalTitle").textContent = "Sửa Người Dùng"
-  document.getElementById("userName").value = user.fullName
-  document.getElementById("userEmail").value = user.email
-  document.getElementById("userPhone").value = user.phoneNumber || ""
-  document.getElementById("userAddress").value = user.address || ""
-  document.getElementById("userRole").value = user.role || "customer"
-  document.getElementById("userPassword").value = ""
-  document.getElementById("userPassword").required = false
-  openModal("userModal")
-}
-
-async function deleteUserHandler(id) {
-  if (confirmAction("Bạn có chắc chắn muốn xóa người dùng này?")) {
-    try {
-      await deleteUser(id)
-      showNotification("Xóa người dùng thành công!", "success")
-      loadUsers()
-    } catch (error) {
-      showNotification("Lỗi khi xóa người dùng", "error")
-    }
+/**
+ * Lấy người dùng theo ID
+ */
+async function getUserById(id) {
+  try {
+    const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.USERS}/${id}`, {
+      method: "GET",
+      headers: API_CONFIG.HEADERS,
+    })
+    if (!response.ok) throw new Error("Lỗi khi lấy thông tin người dùng")
+    return await response.json()
+  } catch (error) {
+    console.error("Error fetching user:", error)
+    throw error
   }
 }
 
-// Event listeners
-document.addEventListener("DOMContentLoaded", () => {
-  loadUsers()
+/**
+ * Tạo người dùng mới
+ */
+async function createUser(userData) {
+  try {
+    const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.USERS}/register`, {
+      method: "POST",
+      headers: API_CONFIG.HEADERS,
+      body: JSON.stringify(userData),
+    })
+    if (!response.ok) throw new Error("Lỗi khi tạo người dùng")
+    return await response.json()
+  } catch (error) {
+    console.error("Error creating user:", error)
+    throw error
+  }
+}
 
-  // Thêm người dùng
-  document.getElementById("addUserBtn").addEventListener("click", () => {
-    currentEditingUserId = null
-    document.getElementById("userModalTitle").textContent = "Thêm Người Dùng"
-    clearForm("userForm")
-    document.getElementById("userPassword").required = true
-    openModal("userModal")
-  })
+/**
+ * Cập nhật người dùng
+ */
+async function updateUser(id, userData) {
+  try {
+    const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.USERS}/${id}`, {
+      method: "PUT",
+      headers: API_CONFIG.HEADERS,
+      body: JSON.stringify(userData),
+    })
+    if (!response.ok) throw new Error("Lỗi khi cập nhật người dùng")
+    return await response.json()
+  } catch (error) {
+    console.error("Error updating user:", error)
+    throw error
+  }
+}
 
-  // Đóng modal
-  document.getElementById("closeUserModal").addEventListener("click", () => {
-    closeModal("userModal")
-  })
-
-  // Submit form
-  document.getElementById("userForm").addEventListener("submit", async (e) => {
-    e.preventDefault()
-    
-    const formData = {
-      fullName: document.getElementById("userName").value,
-      email: document.getElementById("userEmail").value,
-      phoneNumber: document.getElementById("userPhone").value,
-      address: document.getElementById("userAddress").value,
-      role: document.getElementById("userRole").value,
-    }
-    
-    const password = document.getElementById("userPassword").value
-    if (password) {
-      formData.password = password
-    }
-
-    try {
-      if (currentEditingUserId) {
-        await updateUser(currentEditingUserId, formData)
-        showNotification("Cập nhật người dùng thành công!", "success")
-      } else {
-        await createUser(formData)
-        showNotification("Thêm người dùng thành công!", "success")
-      }
-      closeModal("userModal")
-      loadUsers()
-    } catch (error) {
-      showNotification("Có lỗi xảy ra!", "error")
-    }
-  })
-
-  // Tìm kiếm
-  document.getElementById("searchInput").addEventListener("input", (e) => {
-    const keyword = e.target.value.toLowerCase()
-    const filtered = allUsers.filter(
-      (user) =>
-        user.fullName.toLowerCase().includes(keyword) ||
-        user.email.toLowerCase().includes(keyword) ||
-        (user.phoneNumber && user.phoneNumber.includes(keyword))
-    )
-    renderUsersTable(filtered)
-  })
-})
+/**
+ * Xóa người dùng
+ */
+async function deleteUser(id) {
+  try {
+    const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.USERS}/${id}`, {
+      method: "DELETE",
+      headers: API_CONFIG.HEADERS,
+    })
+    if (!response.ok) throw new Error("Lỗi khi xóa người dùng")
+    return true
+  } catch (error) {
+    console.error("Error deleting user:", error)
+    throw error
+  }
+}
