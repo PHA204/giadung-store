@@ -28,7 +28,19 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/products-list/products-list.component').then(m => m.ProductsListComponent)
   },
   {
+    path: 'products/add',
+    loadComponent: () => import('./pages/product-form/product-form.component').then(m => m.ProductFormComponent)
+  },
+  {
+    path: 'products/edit/:id',
+    loadComponent: () => import('./pages/product-form/product-form.component').then(m => m.ProductFormComponent)
+  },
+  {
     path: '**',
     redirectTo: '/dashboard'
+  },
+  {
+  path: 'brands',
+  loadComponent: () => import('./pages/brands-list/brands-list.component').then(m => m.BrandsListComponent)
   }
 ];

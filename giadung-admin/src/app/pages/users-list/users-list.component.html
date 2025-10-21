@@ -1,1 +1,142 @@
-<p>users-list works!</p>
+<div class="users-container">
+  <div class="page-header">
+    <h1>Quản Lý Người Dùng</h1>
+    <button class="btn btn-primary" routerLink="/users/add">
+      + Thêm Người Dùng
+    </button>
+  </div>
+
+  <div class="filters-section">
+    <div class="search-bar">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (input)="onSearch()"
+        placeholder="Tìm kiếm theo tên, email, số điện thoại..."
+        class="search-input">
+    </div>
+
+    <div class="page-size-selector">
+      <label for="pageSize">Hiển thị:</label>
+      <select 
+        id="pageSize" 
+        [(ngModel)]="itemsPerPage" 
+        (change)="onPageSizeChange()"
+        class="page-size-select">
+        <option *ngFor="let size of pageSizeOptions" [value]="size">
+          {{ size }} mục
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Đang tải dữ liệu...</p>
+  </div>
+
+  <div class="table-wrapper" *ngIf="!loading && !errorMessage">
+    <div class="table-info">
+      <span class="total-records">
+        Hiển thị {{ getDisplayRange() }} / {{ filteredUsers.length }} người dùng
+      </span>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Họ và Tên</th>
+            <th>Email</th>
+            <th>Số Điện Thoại</th>
+            <th>Địa Chỉ</th>
+            <th>Vai Trò</th>
+            <th>Trạng Thái</th>
+            <th>Ngày Tạo</th>
+            <th>Hành Động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of paginatedUsers">
+            <td>{{ user.userId }}</td>
+            <td>{{ user.fullName }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.phoneNumber || 'N/A' }}</td>
+            <td>
+              <span class="address-cell" [title]="user.address">
+                {{ (user.address && user.address.length > 30) 
+                   ? (user.address | slice:0:30) + '...' 
+                   : (user.address || 'N/A') }}
+              </span>
+            </td>
+            <td>
+              <span [class]="'badge ' + (user.role === 'admin' ? 'badge-warning' : 'badge-info')">
+                {{ user.role === 'admin' ? 'Quản trị viên' : 'Khách hàng' }}
+              </span>
+            </td>
+            <td>
+              <span [class]="'badge ' + (user.isActive ? 'badge-success' : 'badge-danger')">
+                {{ user.isActive ? 'Hoạt động' : 'Khóa' }}
+              </span>
+            </td>
+            <td>{{ user.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <div class="action-buttons">
+                <button 
+                  class="btn-edit" 
+                  [routerLink]="['/users/edit', user.userId]"
+                  title="Sửa">
+                  ✏️
+                </button>
+                <button 
+                  class="btn-delete" 
+                  (click)="onDelete(user.userId!)"
+                  title="Xóa">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="no-data" *ngIf="paginatedUsers.length === 0">
+        <p>Không tìm thấy người dùng nào</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button 
+        class="pagination-btn"
+        [disabled]="currentPage === 1"
+        (click)="onPageChange(currentPage - 1)">
+        ← Trước
+      </button>
+
+      <div class="pagination-numbers">
+        <button
+          *ngFor="let page of getPageNumbers()"
+          class="pagination-number"
+          [class.active]="page === currentPage"
+          [class.ellipsis]="page === -1"
+          [disabled]="page === -1"
+          (click)="page !== -1 && onPageChange(page)">
+          {{ page === -1 ? '...' : page }}
+        </button>
+      </div>
+
+      <button 
+        class="pagination-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="onPageChange(currentPage + 1)">
+        Sau →
+      </button>
+    </div>
+  </div>
+</div>

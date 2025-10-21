@@ -18,9 +18,17 @@ export class UsersListComponent implements OnInit {
   
   users: User[] = [];
   filteredUsers: User[] = [];
+  paginatedUsers: User[] = [];
+  
   loading = false;
   searchTerm = '';
   errorMessage = '';
+
+  // Pagination properties
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalPages = 0;
+  pageSizeOptions = [5, 10, 20, 50, 100];
 
   ngOnInit(): void {
     this.loadUsers();
@@ -34,6 +42,7 @@ export class UsersListComponent implements OnInit {
       next: (data) => {
         this.users = data;
         this.filteredUsers = data;
+        this.updatePagination();
         this.loading = false;
       },
       error: (error) => {
@@ -49,14 +58,80 @@ export class UsersListComponent implements OnInit {
     
     if (!term) {
       this.filteredUsers = this.users;
-      return;
+    } else {
+      this.filteredUsers = this.users.filter(user => 
+        user.fullName.toLowerCase().includes(term) ||
+        user.email.toLowerCase().includes(term) ||
+        (user.phoneNumber && user.phoneNumber.includes(term))
+      );
     }
+    
+    this.currentPage = 1;
+    this.updatePagination();
+  }
 
-    this.filteredUsers = this.users.filter(user => 
-      user.fullName.toLowerCase().includes(term) ||
-      user.email.toLowerCase().includes(term) ||
-      (user.phoneNumber && user.phoneNumber.includes(term))
-    );
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredUsers.length / this.itemsPerPage);
+    
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = this.totalPages || 1;
+    }
+    
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedUsers = this.filteredUsers.slice(startIndex, endIndex);
+  }
+
+  onPageChange(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
+  getPageNumbers(): number[] {
+    const maxVisiblePages = 5;
+    const pages: number[] = [];
+    
+    if (this.totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+      const endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
+      
+      if (startPage > 1) {
+        pages.push(1);
+        if (startPage > 2) {
+          pages.push(-1); // Ellipsis
+        }
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+      
+      if (endPage < this.totalPages) {
+        if (endPage < this.totalPages - 1) {
+          pages.push(-1); // Ellipsis
+        }
+        pages.push(this.totalPages);
+      }
+    }
+    
+    return pages;
+  }
+
+  getDisplayRange(): string {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredUsers.length);
+    return `${start}-${end}`;
   }
 
   onDelete(userId: number): void {
