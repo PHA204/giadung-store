@@ -1,3 +1,4 @@
+
 // giadung-admin/src/app/app.routes.ts
 import { Routes } from '@angular/router';
 
@@ -36,20 +37,8 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/product-form/product-form.component').then(m => m.ProductFormComponent)
   },
   {
-  path: 'brands',
-  loadComponent: () => import('./pages/brands-list/brands-list.component').then(m => m.BrandsListComponent)
-  },
-  {
-    path: 'categories',
-    loadComponent: () => import('./pages/categories-list/categories-list.component').then(m => m.CategoriesListComponent)
-  },
-  {
-  path: 'categories/add',
-  loadComponent: () => import('./pages/category-form/category-form.component').then(m => m.CategoryFormComponent)
-  },
-  {
-    path: 'categories/edit/:id',
-    loadComponent: () => import('./pages/category-form/category-form.component').then(m => m.CategoryFormComponent)
+    path: 'brands',
+    loadComponent: () => import('./pages/brands-list/brands-list.component').then(m => m.BrandsListComponent)
   },
   {
     path: 'brands/add',
@@ -59,10 +48,26 @@ export const routes: Routes = [
     path: 'brands/edit/:id',
     loadComponent: () => import('./pages/brand-form/brand-form.component').then(m => m.BrandFormComponent)
   },
+  {
+    path: 'categories',
+    loadComponent: () => import('./pages/categories-list/categories-list.component').then(m => m.CategoriesListComponent)
+  },
+  {
+    path: 'categories/add',
+    loadComponent: () => import('./pages/category-form/category-form.component').then(m => m.CategoryFormComponent)
+  },
+  {
+    path: 'categories/edit/:id',
+    loadComponent: () => import('./pages/category-form/category-form.component').then(m => m.CategoryFormComponent)
+  },
   // Orders
   {
     path: 'orders',
     loadComponent: () => import('./pages/orders-list/orders-list.component').then(m => m.OrdersListComponent)
+  },
+  {
+    path: 'orders/add',
+    loadComponent: () => import('./pages/order-form/order-form.component').then(m => m.OrderFormComponent)
   },
   {
     path: 'orders/:id',

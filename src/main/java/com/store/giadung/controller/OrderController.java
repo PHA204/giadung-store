@@ -1,8 +1,10 @@
+// Angular Order Detail Component
 package com.store.giadung.controller;
 
 import com.store.giadung.entity.Order;
 import com.store.giadung.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,64 +18,118 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    // Lấy tất cả đơn hàng
+    /**
+     * Lấy tất cả đơn hàng
+     */
     @GetMapping
     public ResponseEntity<List<Order>> getAllOrders() {
-        return ResponseEntity.ok(orderService.getAllOrders());
+        try {
+            List<Order> orders = orderService.getAllOrders();
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    // Lấy đơn hàng theo ID
+    /**
+     * Lấy đơn hàng theo ID
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
-        Order order = orderService.getOrderById(id);
-        if (order != null) {
-            return ResponseEntity.ok(order);
+        try {
+            Order order = orderService.getOrderById(id);
+            if (order != null) {
+                return ResponseEntity.ok(order);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return ResponseEntity.notFound().build();
     }
 
-    // Lấy đơn hàng theo user ID
+    /**
+     * Lấy đơn hàng theo user ID
+     */
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Order>> getOrdersByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(orderService.getOrdersByUserId(userId));
+        try {
+            List<Order> orders = orderService.getOrdersByUserId(userId);
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    // Lấy đơn hàng theo trạng thái
+    /**
+     * Lấy đơn hàng theo trạng thái
+     */
     @GetMapping("/status/{status}")
     public ResponseEntity<List<Order>> getOrdersByStatus(@PathVariable String status) {
-        return ResponseEntity.ok(orderService.getOrdersByStatus(status));
+        try {
+            List<Order> orders = orderService.getOrdersByStatus(status);
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    // Tạo đơn hàng mới
+    /**
+     * Tạo đơn hàng mới
+     */
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
-        return ResponseEntity.ok(orderService.saveOrder(order));
+    public ResponseEntity<?> createOrder(@RequestBody Order order) {
+        try {
+            Order savedOrder = orderService.saveOrder(order);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating order");
+        }
     }
 
-    // Cập nhật đơn hàng
+    /**
+     * Cập nhật đơn hàng
+     */
     @PutMapping("/{id}")
-    public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody Order order) {
-        Order updated = orderService.updateOrder(id, order);
-        if (updated != null) {
+    public ResponseEntity<?> updateOrder(@PathVariable Long id, @RequestBody Order order) {
+        try {
+            Order updated = orderService.updateOrder(id, order);
             return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating order");
         }
-        return ResponseEntity.notFound().build();
     }
 
-    // Cập nhật trạng thái đơn hàng
+    /**
+     * Cập nhật trạng thái đơn hàng
+     */
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Order> updateOrderStatus(@PathVariable Long id, @RequestParam String status) {
-        Order updated = orderService.updateOrderStatus(id, status);
-        if (updated != null) {
+    public ResponseEntity<?> updateOrderStatus(@PathVariable Long id, @RequestParam String status) {
+        try {
+            Order updated = orderService.updateOrderStatus(id, status);
             return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating status");
         }
-        return ResponseEntity.notFound().build();
     }
 
-    // Xóa đơn hàng
+    /**
+     * Xóa đơn hàng
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-        orderService.deleteOrder(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> deleteOrder(@PathVariable Long id) {
+        try {
+            orderService.deleteOrder(id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting order");
+        }
     }
 }

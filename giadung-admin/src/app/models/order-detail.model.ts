@@ -7,3 +7,4 @@ export interface OrderDetail {
   quantity: number;
   unitPrice: number;
 }
+
