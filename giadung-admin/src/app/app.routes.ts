@@ -36,11 +36,45 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/product-form/product-form.component').then(m => m.ProductFormComponent)
   },
   {
+  path: 'brands',
+  loadComponent: () => import('./pages/brands-list/brands-list.component').then(m => m.BrandsListComponent)
+  },
+  {
+    path: 'categories',
+    loadComponent: () => import('./pages/categories-list/categories-list.component').then(m => m.CategoriesListComponent)
+  },
+  {
+  path: 'categories/add',
+  loadComponent: () => import('./pages/category-form/category-form.component').then(m => m.CategoryFormComponent)
+  },
+  {
+    path: 'categories/edit/:id',
+    loadComponent: () => import('./pages/category-form/category-form.component').then(m => m.CategoryFormComponent)
+  },
+  {
+    path: 'brands/add',
+    loadComponent: () => import('./pages/brand-form/brand-form.component').then(m => m.BrandFormComponent)
+  },
+  {
+    path: 'brands/edit/:id',
+    loadComponent: () => import('./pages/brand-form/brand-form.component').then(m => m.BrandFormComponent)
+  },
+  // Orders
+  {
+    path: 'orders',
+    loadComponent: () => import('./pages/orders-list/orders-list.component').then(m => m.OrdersListComponent)
+  },
+  {
+    path: 'orders/:id',
+    loadComponent: () => import('./pages/order-detail/order-detail.component').then(m => m.OrderDetailComponent)
+  },
+  // Reviews
+  {
+    path: 'reviews',
+    loadComponent: () => import('./pages/reviews-list/reviews-list.component').then(m => m.ReviewsListComponent)
+  },
+  {
     path: '**',
     redirectTo: '/dashboard'
   },
-  {
-  path: 'brands',
-  loadComponent: () => import('./pages/brands-list/brands-list.component').then(m => m.BrandsListComponent)
-  }
 ];

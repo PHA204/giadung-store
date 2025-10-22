@@ -1,0 +1,51 @@
+<div class="form-container">
+  <div class="form-header">
+    <h1>{{ isEditMode ? 'Chỉnh Sửa Nhãn Hiệu' : 'Thêm Nhãn Hiệu Mới' }}</h1>
+    <button class="btn-back" routerLink="/brands">← Quay lại</button>
+  </div>
+
+  <div class="form-card">
+    <form [formGroup]="brandForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="brandName">Tên Nhãn Hiệu <span class="required">*</span></label>
+        <input
+          type="text"
+          id="brandName"
+          formControlName="brandName"
+          [class.invalid]="submitted && f['brandName'].errors"
+          placeholder="Nhập tên nhãn hiệu">
+        <div class="error-message" *ngIf="submitted && f['brandName'].errors">
+          <small *ngIf="f['brandName'].errors['required']">Vui lòng nhập tên nhãn hiệu</small>
+          <small *ngIf="f['brandName'].errors['minlength']">Tên nhãn hiệu phải có ít nhất 2 ký tự</small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Mô Tả</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          rows="4"
+          placeholder="Nhập mô tả nhãn hiệu (nếu có)"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="onCancel()"
+          [disabled]="loading">
+          Hủy
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="loading">
+          <span *ngIf="!loading">{{ isEditMode ? 'Cập Nhật' : 'Thêm Mới' }}</span>
+          <span *ngIf="loading">Đang xử lý...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

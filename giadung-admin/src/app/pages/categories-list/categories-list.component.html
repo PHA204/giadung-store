@@ -1,0 +1,64 @@
+<div class="users-container">
+  <div class="page-header">
+    <h1>Quản Lý Danh Mục</h1>
+    <button class="btn btn-primary" routerLink="/categories/add">+ Thêm Danh Mục</button>
+  </div>
+
+  <div class="filters-section">
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      (input)="onSearch()"
+      placeholder="Tìm kiếm theo tên hoặc mô tả..."
+      class="search-input"
+    />
+  </div>
+
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Đang tải dữ liệu...</p>
+  </div>
+
+  <div *ngIf="!loading && !errorMessage" class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tên Danh Mục</th>
+          <th>Mô Tả</th>
+          <th>Ngày Tạo</th>
+          <th>Hành Động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let category of paginatedCategories">
+          <td>{{ category.categoryId }}</td>
+          <td>{{ category.categoryName }}</td>
+          <td>{{ category.description || '—' }}</td>
+          <td>{{ category.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>
+            <button class="btn-edit" [routerLink]="['/categories/edit', category.categoryId]">✏️</button>
+            <button
+              class="btn-delete"
+              *ngIf="category.categoryId"
+              (click)="onDelete(category.categoryId)">
+              🗑️
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button [disabled]="currentPage === 1" (click)="onPageChange(currentPage - 1)">← Trước</button>
+      <button
+        *ngFor="let i of [].constructor(totalPages); let page = index"
+        [class.active]="page + 1 === currentPage"
+        (click)="onPageChange(page + 1)">
+        {{ page + 1 }}
+      </button>
+      <button [disabled]="currentPage === totalPages" (click)="onPageChange(currentPage + 1)">Sau →</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,149 @@
+<div class="orders-container">
+  <div class="page-header">
+    <h1>Quản Lý Đơn Hàng</h1>
+  </div>
+
+  <div class="filters-section">
+    <div class="search-bar">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (input)="onSearch()"
+        placeholder="Tìm kiếm theo ID, tên khách hàng, địa chỉ..."
+        class="search-input">
+    </div>
+
+    <div class="filter-group">
+      <select 
+        [(ngModel)]="selectedStatus" 
+        (change)="onStatusChange()"
+        class="filter-select">
+        <option *ngFor="let status of statusOptions" [value]="status.value">
+          {{ status.label }}
+        </option>
+      </select>
+
+      <select 
+        [(ngModel)]="itemsPerPage" 
+        (change)="onPageSizeChange()"
+        class="page-size-select">
+        <option *ngFor="let size of pageSizeOptions" [value]="size">
+          {{ size }} mục
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Đang tải dữ liệu...</p>
+  </div>
+
+  <div class="table-wrapper" *ngIf="!loading && !errorMessage">
+    <div class="table-info">
+      <span class="total-records">
+        Hiển thị {{ getDisplayRange() }} / {{ filteredOrders.length }} đơn hàng
+      </span>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Mã ĐH</th>
+            <th>Khách Hàng</th>
+            <th>Tổng Tiền</th>
+            <th>Phương Thức</th>
+            <th>Địa Chỉ</th>
+            <th>Trạng Thái</th>
+            <th>Ngày Đặt</th>
+            <th>Hành Động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of paginatedOrders">
+            <td>#{{ order.orderId }}</td>
+            <td>{{ order.user?.fullName || 'N/A' }}</td>
+            <td class="amount">{{ order.totalAmount | number:'1.0-0' }} ₫</td>
+            <td>
+              <span class="payment-method">{{ order.paymentMethod || 'COD' }}</span>
+            </td>
+            <td>
+              <span class="address-cell" [title]="order.shippingAddress">
+                {{ (order.shippingAddress && order.shippingAddress.length > 40) 
+                   ? (order.shippingAddress | slice:0:40) + '...' 
+                   : order.shippingAddress }}
+              </span>
+            </td>
+            <td>
+              <select 
+                [value]="order.currentStatus"
+                (change)="onUpdateStatus(order.orderId!, $any($event.target).value)"
+                [class]="'status-select ' + getStatusBadgeClass(order.currentStatus || 'pending')">
+                <option *ngFor="let status of statusOptions" 
+                        [value]="status.value" 
+                        [disabled]="status.value === 'all'">
+                  {{ status.label }}
+                </option>
+              </select>
+            </td>
+            <td>{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <div class="action-buttons">
+                <button 
+                  class="btn-view" 
+                  [routerLink]="['/orders', order.orderId]"
+                  title="Xem chi tiết">
+                  👁️
+                </button>
+                <button 
+                  class="btn-delete" 
+                  (click)="onDelete(order.orderId!)"
+                  title="Xóa">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="no-data" *ngIf="paginatedOrders.length === 0">
+        <p>Không tìm thấy đơn hàng nào</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button 
+        class="pagination-btn"
+        [disabled]="currentPage === 1"
+        (click)="onPageChange(currentPage - 1)">
+        ← Trước
+      </button>
+
+      <div class="pagination-numbers">
+        <button
+          *ngFor="let page of getPageNumbers()"
+          class="pagination-number"
+          [class.active]="page === currentPage"
+          [class.ellipsis]="page === -1"
+          [disabled]="page === -1"
+          (click)="page !== -1 && onPageChange(page)">
+          {{ page === -1 ? '...' : page }}
+        </button>
+      </div>
+
+      <button 
+        class="pagination-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="onPageChange(currentPage + 1)">
+        Sau →
+      </button>
+    </div>
+  </div>
+</div>

@@ -3,45 +3,75 @@ package com.store.giadung.controller;
 import com.store.giadung.entity.CartItem;
 import com.store.giadung.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/cart")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "http://127.0.0.1:5500", "http://localhost:5500"})
 public class CartController {
 
     @Autowired
     private CartService cartService;
 
-    // Lấy toàn bộ sản phẩm trong giỏ
+    // Lấy tất cả items trong giỏ hàng
     @GetMapping
-    public List<CartItem> getAllItems() {
-        return cartService.getAllItems();
+    public ResponseEntity<List<CartItem>> getAllCartItems() {
+        return ResponseEntity.ok(cartService.getAllItems());
+    }
+
+    // Lấy giỏ hàng theo user ID
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<CartItem>> getCartByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(cartService.getCartByUserId(userId));
+    }
+
+    // Lấy cart item theo ID
+    @GetMapping("/{id}")
+    public ResponseEntity<CartItem> getCartItemById(@PathVariable Long id) {
+        CartItem item = cartService.getCartItemById(id);
+        if (item != null) {
+            return ResponseEntity.ok(item);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     // Thêm sản phẩm vào giỏ
     @PostMapping
-    public CartItem addItem(@RequestBody CartItem item) {
-        return cartService.addItem(item);
+    public ResponseEntity<CartItem> addToCart(@RequestBody CartItem cartItem) {
+        return ResponseEntity.ok(cartService.addItem(cartItem));
     }
 
-    // Cập nhật số lượng sản phẩm
+    // Cập nhật số lượng
     @PutMapping("/{id}")
-    public CartItem updateItem(@PathVariable Long id, @RequestBody CartItem updatedItem) {
-        return cartService.updateItem(id, updatedItem);
+    public ResponseEntity<CartItem> updateCartItem(@PathVariable Long id, @RequestBody CartItem updatedItem) {
+        CartItem item = cartService.updateItem(id, updatedItem);
+        if (item != null) {
+            return ResponseEntity.ok(item);
+        }
+        return ResponseEntity.notFound().build();
     }
 
-    // Xóa 1 sản phẩm khỏi giỏ
+    // Xóa một item
     @DeleteMapping("/{id}")
-    public void removeItem(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCartItem(@PathVariable Long id) {
         cartService.removeItem(id);
+        return ResponseEntity.ok().build();
     }
 
-    // Xóa toàn bộ giỏ hàng
+    // Xóa toàn bộ giỏ hàng của user
+    @DeleteMapping("/user/{userId}")
+    public ResponseEntity<Void> clearUserCart(@PathVariable Long userId) {
+        cartService.clearUserCart(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    // Xóa tất cả giỏ hàng (admin)
     @DeleteMapping
-    public void clearCart() {
+    public ResponseEntity<Void> clearAllCarts() {
         cartService.clearCart();
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,0 +1,175 @@
+<div class="products-container">
+  <div class="page-header">
+    <h1>Quản Lý Sản Phẩm</h1>
+    <button class="btn btn-primary" routerLink="/products/add">
+      + Thêm Sản Phẩm
+    </button>
+  </div>
+
+  <div class="filters-section">
+    <div class="search-bar">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (input)="onSearch()"
+        placeholder="Tìm kiếm sản phẩm theo tên, mô tả, danh mục, thương hiệu..."
+        class="search-input">
+    </div>
+
+    <div class="page-size-selector">
+      <label for="pageSize">Hiển thị:</label>
+      <select 
+        id="pageSize" 
+        [(ngModel)]="itemsPerPage" 
+        (change)="onPageSizeChange()"
+        class="page-size-select">
+        <option *ngFor="let size of pageSizeOptions" [value]="size">
+          {{ size }} mục
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Đang tải dữ liệu...</p>
+  </div>
+
+  <div class="table-wrapper" *ngIf="!loading && !errorMessage">
+    <div class="table-info">
+      <span class="total-records">
+        Hiển thị {{ getDisplayRange() }} / {{ filteredProducts.length }} sản phẩm
+      </span>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Hình ảnh</th>
+            <th>Tên Sản Phẩm</th>
+            <th>Danh Mục</th>
+            <th>Thương Hiệu</th>
+            <th>Giá</th>
+            <th>Giảm Giá</th>
+            <th>Tồn Kho</th>
+            <th>Đánh Giá</th>
+            <th>Ngày Tạo</th>
+            <th>Hành Động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of paginatedProducts">
+            <td>{{ product.productId }}</td>
+            <td>
+              <img 
+                *ngIf="product.imageUrl" 
+                [src]="product.imageUrl" 
+                [alt]="product.productName" 
+                class="product-image"                
+                (error)="$any($event.target).src='https://via.placeholder.com/150'">
+              <span *ngIf="!product.imageUrl" class="no-image">📦</span>
+            </td>
+            <td>
+              <div class="product-name">
+                <strong>{{ product.productName }}</strong>
+                <small *ngIf="product.description" class="product-desc">
+                  {{ (product.description.length > 50) 
+                     ? (product.description | slice:0:50) + '...' 
+                     : product.description }}
+                </small>
+              </div>
+            </td>
+            <td>
+              <span *ngIf="product.category" class="badge badge-info">
+                {{ product.category.categoryName }}
+              </span>
+              <span *ngIf="!product.category" class="text-muted">N/A</span>
+            </td>
+            <td>
+              <span *ngIf="product.brand" class="badge badge-secondary">
+                {{ product.brand.brandName }}
+              </span>
+              <span *ngIf="!product.brand" class="text-muted">N/A</span>
+            </td>
+            <td class="price-cell">
+              {{ formatPrice(product.price) }}
+            </td>
+            <td>
+              <span *ngIf="product.discount && product.discount > 0" 
+                    class="badge badge-warning">
+                -{{ product.discount }}%
+              </span>
+              <span *ngIf="!product.discount || product.discount === 0" class="text-muted">-</span>
+            </td>
+            <td>
+              <span [class]="'badge ' + (product.stockQuantity > 0 ? 'badge-success' : 'badge-danger')">
+                {{ product.stockQuantity }}
+              </span>
+            </td>
+            <td>
+              <span class="rating">
+                ⭐ {{ product.ratingAvg || 0 }}
+              </span>
+            </td>
+            <td>{{ product.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <div class="action-buttons">
+                <button 
+                  class="btn-edit" 
+                  [routerLink]="['/products/edit', product.productId]"
+                  title="Sửa">
+                  ✏️
+                </button>
+                <button 
+                  class="btn-delete" 
+                  (click)="onDelete(product.productId!)"
+                  title="Xóa">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="no-data" *ngIf="paginatedProducts.length === 0">
+        <p>Không tìm thấy sản phẩm nào</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button 
+        class="pagination-btn"
+        [disabled]="currentPage === 1"
+        (click)="onPageChange(currentPage - 1)">
+        ← Trước
+      </button>
+
+      <div class="pagination-numbers">
+        <button
+          *ngFor="let page of getPageNumbers()"
+          class="pagination-number"
+          [class.active]="page === currentPage"
+          [class.ellipsis]="page === -1"
+          [disabled]="page === -1"
+          (click)="page !== -1 && onPageChange(page)">
+          {{ page === -1 ? '...' : page }}
+        </button>
+      </div>
+
+      <button 
+        class="pagination-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="onPageChange(currentPage + 1)">
+        Sau →
+      </button>
+    </div>
+  </div>
+</div>

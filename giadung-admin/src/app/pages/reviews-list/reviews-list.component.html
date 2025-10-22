@@ -1,0 +1,137 @@
+<div class="reviews-container">
+  <div class="page-header">
+    <h1>Quản Lý Đánh Giá</h1>
+  </div>
+
+  <div class="filters-section">
+    <div class="search-bar">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (input)="onSearch()"
+        placeholder="Tìm kiếm theo khách hàng, sản phẩm, nội dung..."
+        class="search-input">
+    </div>
+
+    <div class="filter-group">
+      <select 
+        [(ngModel)]="selectedRating" 
+        (change)="onRatingChange()"
+        class="filter-select">
+        <option *ngFor="let option of ratingOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+
+      <select 
+        [(ngModel)]="itemsPerPage" 
+        (change)="onPageSizeChange()"
+        class="page-size-select">
+        <option *ngFor="let size of pageSizeOptions" [value]="size">
+          {{ size }} mục
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Đang tải dữ liệu...</p>
+  </div>
+
+  <div class="table-wrapper" *ngIf="!loading && !errorMessage">
+    <div class="table-info">
+      <span class="total-records">
+        Hiển thị {{ getDisplayRange() }} / {{ filteredReviews.length }} đánh giá
+      </span>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Khách Hàng</th>
+            <th>Sản Phẩm</th>
+            <th>Đánh Giá</th>
+            <th>Bình Luận</th>
+            <th>Ngày Đánh Giá</th>
+            <th>Hành Động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let review of paginatedReviews">
+            <td>{{ review.reviewId }}</td>
+            <td>{{ review.user?.fullName || 'N/A' }}</td>
+            <td>
+              <div class="product-info">
+                <span>{{ review.product?.productName || 'N/A' }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="rating-stars">
+                <span class="stars">{{ getStars(review.rating) }}</span>
+                <span class="rating-number">({{ review.rating }}/5)</span>
+              </div>
+            </td>
+            <td>
+              <span class="comment-cell" [title]="review.comment">
+                {{ (review.comment && review.comment.length > 50) 
+                   ? (review.comment | slice:0:50) + '...' 
+                   : (review.comment || 'Không có bình luận') }}
+              </span>
+            </td>
+            <td>{{ review.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <div class="action-buttons">
+                <button 
+                  class="btn-delete" 
+                  (click)="onDelete(review.reviewId!)"
+                  title="Xóa">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="no-data" *ngIf="paginatedReviews.length === 0">
+        <p>Không tìm thấy đánh giá nào</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button 
+        class="pagination-btn"
+        [disabled]="currentPage === 1"
+        (click)="onPageChange(currentPage - 1)">
+        ← Trước
+      </button>
+
+      <div class="pagination-numbers">
+        <button
+          *ngFor="let page of getPageNumbers()"
+          class="pagination-number"
+          [class.active]="page === currentPage"
+          [class.ellipsis]="page === -1"
+          [disabled]="page === -1"
+          (click)="page !== -1 && onPageChange(page)">
+          {{ page === -1 ? '...' : page }}
+        </button>
+      </div>
+
+      <button 
+        class="pagination-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="onPageChange(currentPage + 1)">
+        Sau →
+      </button>
+    </div>
+  </div>
+</div>

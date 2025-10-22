@@ -1,0 +1,38 @@
+<div class="form-container">
+  <div class="form-header">
+    <h1>{{ isEditMode ? 'Chỉnh Sửa Danh Mục' : 'Thêm Danh Mục Mới' }}</h1>
+    <button class="btn-back" routerLink="/categories">← Quay lại</button>
+  </div>
+
+  <div class="form-card">
+    <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="categoryName">Tên Danh Mục <span class="required">*</span></label>
+        <input
+          id="categoryName"
+          type="text"
+          formControlName="categoryName"
+          placeholder="Nhập tên danh mục"
+          [class.invalid]="submitted && f['categoryName'].errors" />
+        <div class="error-message" *ngIf="submitted && f['categoryName'].errors">
+          <small *ngIf="f['categoryName'].errors['required']">Vui lòng nhập tên danh mục</small>
+          <small *ngIf="f['categoryName'].errors['minlength']">Tên danh mục phải có ít nhất 2 ký tự</small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Mô Tả</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          rows="4"
+          placeholder="Nhập mô tả danh mục (nếu có)"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="onCancel()">Hủy</button>
+        <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Cập Nhật' : 'Thêm Mới' }}</button>
+      </div>
+    </form>
+  </div>
+</div>

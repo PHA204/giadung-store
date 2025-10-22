@@ -1,0 +1,108 @@
+<div class="users-container">
+  <div class="page-header">
+    <h1>Quản Lý Nhãn Hiệu</h1>
+    <button class="btn btn-primary" routerLink="/brands/add">
+      + Thêm Nhãn Hiệu
+    </button>
+  </div>
+
+  <div class="filters-section">
+    <div class="search-bar">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+        placeholder="Tìm kiếm theo tên hoặc mô tả..."
+        class="search-input" />
+    </div>
+
+    <div class="page-size-selector">
+      <label for="pageSize">Hiển thị:</label>
+      <select
+        id="pageSize"
+        [(ngModel)]="itemsPerPage"
+        (change)="onPageSizeChange()"
+        class="page-size-select">
+        <option *ngFor="let size of pageSizeOptions" [value]="size">
+          {{ size }} mục
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Đang tải dữ liệu...</p>
+  </div>
+
+  <div class="table-wrapper" *ngIf="!loading && !errorMessage">
+    <div class="table-info">
+      <span class="total-records">
+        Hiển thị {{ getDisplayRange() }} / {{ filteredBrands.length }} nhãn hiệu
+      </span>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tên Nhãn Hiệu</th>
+            <th>Mô Tả</th>
+            <th>Ngày Tạo</th>
+            <th>Hành Động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let brand of paginatedBrands">
+            <td>{{ brand.brandId }}</td>
+            <td>{{ brand.brandName }}</td>
+            <td>{{ brand.description || '—' }}</td>
+            <td>{{ brand.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <div class="action-buttons">
+                <button
+                  class="btn-edit"
+                  [routerLink]="['/brands/edit', brand.brandId]"
+                  title="Sửa">✏️</button>
+                <button
+                  class="btn-delete"
+                  (click)="onDelete(brand.brandId!)"
+                  title="Xóa">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="no-data" *ngIf="paginatedBrands.length === 0">
+        <p>Không tìm thấy nhãn hiệu nào</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button
+        class="pagination-btn"
+        [disabled]="currentPage === 1"
+        (click)="onPageChange(currentPage - 1)">← Trước</button>
+
+      <button
+        *ngFor="let i of [].constructor(totalPages); let page = index"
+        class="pagination-number"
+        [class.active]="page + 1 === currentPage"
+        (click)="onPageChange(page + 1)">
+        {{ page + 1 }}
+      </button>
+
+      <button
+        class="pagination-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="onPageChange(currentPage + 1)">Sau →</button>
+    </div>
+  </div>
+</div>

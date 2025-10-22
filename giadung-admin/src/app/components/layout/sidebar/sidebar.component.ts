@@ -32,6 +32,18 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
           </a>
         </li>
         <li class="sidebar-item">
+          <a routerLink="/orders" routerLinkActive="active" class="sidebar-link">
+            <span class="sidebar-icon">🛍️</span>
+            <span>Đơn Hàng</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a routerLink="/reviews" routerLinkActive="active" class="sidebar-link">
+            <span class="sidebar-icon">⭐</span>
+            <span>Đánh Giá</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
           <a routerLink="/categories" routerLinkActive="active" class="sidebar-link">
             <span class="sidebar-icon">📂</span>
             <span>Danh Mục</span>
