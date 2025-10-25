@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 import { Product } from '../models/product.model';
 
+
 export interface ProductsResponse {
   products: Product[];
   currentPage: number;

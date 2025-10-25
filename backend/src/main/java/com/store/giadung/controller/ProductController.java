@@ -5,12 +5,14 @@ import com.store.giadung.entity.Product;
 import com.store.giadung.service.impl.ProductServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/products")
@@ -21,17 +23,19 @@ public class ProductController {
     private ProductServiceImpl productService;
 
     /**
-     * NEW OPTIMIZED ENDPOINT với Pagination
-     * GET /api/products?page=0&size=10&sortBy=createdAt&direction=desc
+     * ✅ OPTIMIZED PAGINATION với Cache Headers
      */
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllProductsPaginated(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "12") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction
     ) {
         try {
+            // Giới hạn size tối đa để tránh quá tải
+            if (size > 100) size = 100;
+            
             Page<ProductDTO> productPage = productService.getAllProductsPaginated(page, size, sortBy, direction);
             
             Map<String, Object> response = new HashMap<>();
@@ -41,40 +45,90 @@ public class ProductController {
             response.put("totalPages", productPage.getTotalPages());
             response.put("pageSize", productPage.getSize());
             
-            return ResponseEntity.ok(response);
+            // ✅ THÊM Cache-Control header (cache 5 phút)
+            return ResponseEntity.ok()
+                    .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES))
+                    .body(response);
+                    
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * ✅ OPTIMIZED: Lightweight endpoint - chỉ trả id, name, price, image
+     */
+    @GetMapping("/lite")
+    public ResponseEntity<Map<String, Object>> getProductsLite(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        try {
+            Page<ProductDTO> productPage = productService.getAllProductsPaginated(page, size, "createdAt", "desc");
+            
+            // Chỉ trả về các field cần thiết
+            List<Map<String, Object>> liteProducts = productPage.getContent().stream()
+                .map(p -> {
+                    Map<String, Object> lite = new HashMap<>();
+                    lite.put("productId", p.getProductId());
+                    lite.put("productName", p.getProductName());
+                    lite.put("price", p.getPrice());
+                    lite.put("imageUrl", p.getImageUrl());
+                    lite.put("discount", p.getDiscount());
+                    lite.put("stockQuantity", p.getStockQuantity());
+                    return lite;
+                })
+                .toList();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("products", liteProducts);
+            response.put("currentPage", productPage.getNumber());
+            response.put("totalItems", productPage.getTotalElements());
+            response.put("totalPages", productPage.getTotalPages());
+            
+            return ResponseEntity.ok()
+                    .cacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES))
+                    .body(response);
+                    
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
     /**
-     * FALLBACK: Get all (không khuyến khích nếu có nhiều data)
-     */
-    @GetMapping("/all")
-    public ResponseEntity<List<Product>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
-    }
-
-    /**
-     * OPTIMIZED: Get product by ID
+     * ✅ Get product by ID với cache
      */
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         try {
             ProductDTO product = productService.getProductDTOById(id);
-            return ResponseEntity.ok(product);
+            return ResponseEntity.ok()
+                    .cacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES))
+                    .body(product);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     /**
-     * Search products
+     * ✅ OPTIMIZED Search với debounce-friendly response
      */
     @GetMapping("/search")
     public ResponseEntity<List<ProductDTO>> searchProducts(@RequestParam String keyword) {
-        List<ProductDTO> products = productService.searchProducts(keyword);
-        return ResponseEntity.ok(products);
+        try {
+            // Giới hạn 50 kết quả search
+            List<ProductDTO> products = productService.searchProducts(keyword)
+                    .stream()
+                    .limit(50)
+                    .toList();
+                    
+            return ResponseEntity.ok()
+                    .cacheControl(CacheControl.maxAge(2, TimeUnit.MINUTES))
+                    .body(products);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     /**

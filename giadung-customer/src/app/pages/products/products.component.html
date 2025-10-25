@@ -1,1 +1,229 @@
-<p>products works!</p>
+    <div class="products-container">
+      <!-- ✅ LOADING OVERLAY -->
+      <div *ngIf="loading" class="loading-overlay">
+        <div class="spinner-large"></div>
+        <p>Đang tải sản phẩm...</p>
+      </div>
+
+      <div class="products-layout" [class.loading-blur]="loading">
+        <!-- Sidebar Filters -->
+        <aside class="filters-sidebar">
+          <div class="filter-section">
+            <h3>Tìm kiếm</h3>
+            <div class="search-box">
+              <input 
+                type="text" 
+                [(ngModel)]="searchKeyword" 
+                (ngModelChange)="onSearchChange($event)"
+                placeholder="Tìm sản phẩm..."
+                [disabled]="loading">
+              <button class="btn-search" (click)="searchProducts()" [disabled]="loading">
+                🔍
+              </button>
+            </div>
+            <small *ngIf="isSearching" class="search-status">⏳ Đang tìm kiếm...</small>
+          </div>
+
+          <div class="filter-section">
+            <h3>Danh mục</h3>
+            <div class="filter-options">
+              <label class="filter-option">
+                <input 
+                  type="radio" 
+                  name="category" 
+                  [value]="null"
+                  [(ngModel)]="selectedCategory"
+                  (change)="applyFilters()"
+                  [disabled]="loading">
+                <span>Tất cả</span>
+              </label>
+              <label class="filter-option" *ngFor="let category of categories; trackBy: trackByCategory">
+                <input 
+                  type="radio" 
+                  name="category" 
+                  [value]="category.categoryId"
+                  [(ngModel)]="selectedCategory"
+                  (change)="applyFilters()"
+                  [disabled]="loading">
+                <span>{{ category.categoryName }}</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="filter-section">
+            <h3>Khoảng giá</h3>
+            <div class="price-range">
+              <input 
+                type="number" 
+                [(ngModel)]="minPrice" 
+                placeholder="Từ"
+                (change)="applyFilters()"
+                [disabled]="loading">
+              <span>-</span>
+              <input 
+                type="number" 
+                [(ngModel)]="maxPrice" 
+                placeholder="Đến"
+                (change)="applyFilters()"
+                [disabled]="loading">
+            </div>
+          </div>
+
+          <div class="filter-section">
+            <h3>Sắp xếp</h3>
+            <select [(ngModel)]="sortOption" (change)="applySorting()" class="sort-select" [disabled]="loading">
+              <option value="createdAt-desc">Mới nhất</option>
+              <option value="createdAt-asc">Cũ nhất</option>
+              <option value="price-asc">Giá tăng dần</option>
+              <option value="price-desc">Giá giảm dần</option>
+              <option value="productName-asc">Tên A-Z</option>
+              <option value="productName-desc">Tên Z-A</option>
+            </select>
+          </div>
+
+          <button class="btn-reset" (click)="resetFilters()" [disabled]="loading">
+            Xóa bộ lọc
+          </button>
+        </aside>
+
+        <!-- Products Grid -->
+        <main class="products-main">
+          <!-- Header -->
+          <div class="products-header">
+            <h2>
+              {{ searchKeyword ? 'Kết quả tìm kiếm: ' + searchKeyword : 'Tất cả sản phẩm' }}
+            </h2>
+            <div class="products-count">
+              Hiển thị {{ products.length }} / {{ totalItems }} sản phẩm
+            </div>
+          </div>
+
+          <!-- ✅ ERROR STATE -->
+          <div *ngIf="error && !loading" class="error-message">
+            <p>❌ {{ error }}</p>
+            <button class="btn btn-primary" (click)="loadProducts()">Thử lại</button>
+          </div>
+
+          <!-- ✅ EMPTY STATE -->
+          <div *ngIf="!loading && !error && products.length === 0" class="empty-state">
+            <div class="empty-icon">📦</div>
+            <h3>Không tìm thấy sản phẩm</h3>
+            <p>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
+            <button class="btn btn-primary" (click)="resetFilters()">
+              Xóa bộ lọc
+            </button>
+          </div>
+
+          <!-- ✅ PRODUCTS GRID -->
+          <div class="products-grid" *ngIf="!loading && !error && products.length > 0">
+            <div *ngFor="let product of products; trackBy: trackByProduct" class="product-card">
+              <a [routerLink]="['/products', product.productId]" class="product-link">
+                <div class="product-image">
+                  <img 
+                    [src]="product.imageUrl || 'https://via.placeholder.com/300'" 
+                    [alt]="product.productName"
+                    loading="lazy">
+                  <div class="product-badges">
+                    <span class="badge badge-discount" *ngIf="product.discount && product.discount > 0">
+                      -{{ product.discount }}%
+                    </span>
+                    <span class="badge badge-new" *ngIf="isNewProduct(product)">
+                      Mới
+                    </span>
+                    <span class="badge badge-out" *ngIf="product.stockQuantity === 0">
+                      Hết hàng
+                    </span>
+                  </div>
+                </div>
+
+                <div class="product-info">
+                  <div class="product-category">
+                    {{ product.category?.categoryName }}
+                  </div>
+                  <h3 class="product-name">{{ product.productName }}</h3>
+                  <div class="product-brand">
+                    {{ product.brand?.brandName }}
+                  </div>
+
+                  <div class="product-rating" *ngIf="product.ratingAvg">
+                    <span class="stars">
+                      {{ getStarDisplay(product.ratingAvg) }}
+                    </span>
+                    <span class="rating-value">{{ product.ratingAvg }}</span>
+                  </div>
+
+                  <div class="product-price">
+                    <div class="price-wrapper">
+                      <span class="current-price">
+                        {{ formatPrice(calculateDiscountedPrice(product)) }}
+                      </span>
+                    </div>
+                    <div class="original-price-wrapper" *ngIf="product.discount && product.discount > 0">
+                      <span class="original-price">
+                        {{ formatPrice(product.price) }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="product-stock">
+                    <span [class.in-stock]="product.stockQuantity > 0" 
+                          [class.out-stock]="product.stockQuantity === 0">
+                      {{ product.stockQuantity > 0 ? 'Còn ' + product.stockQuantity + ' sản phẩm' : 'Hết hàng' }}
+                    </span>
+                  </div>
+                </div>
+              </a>
+
+              <div class="product-actions">
+                <button 
+                  class="btn-add-cart" 
+                  (click)="addToCart($event, product)"
+                  [disabled]="product.stockQuantity === 0 || loading">
+                  <span *ngIf="product.stockQuantity > 0">🛒 Thêm vào giỏ</span>
+                  <span *ngIf="product.stockQuantity === 0">Hết hàng</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ PAGINATION -->
+          <div class="pagination" *ngIf="!loading && totalPages > 1">
+            <button 
+              class="btn-page" 
+              (click)="goToPage(currentPage - 1)"
+              [disabled]="currentPage === 0 || loading">
+              ← Trước
+            </button>
+
+            <div class="page-numbers">
+              <button 
+                *ngFor="let page of getPageNumbers()" 
+                class="btn-page-number"
+                [class.active]="page === currentPage"
+                (click)="goToPage(page)"
+                [disabled]="loading">
+                {{ page + 1 }}
+              </button>
+            </div>
+
+            <button 
+              class="btn-page" 
+              (click)="goToPage(currentPage + 1)"
+              [disabled]="currentPage === totalPages - 1 || loading">
+              Sau →
+            </button>
+          </div>
+
+          <!-- Page Size Selector -->
+          <div class="page-size-selector" *ngIf="!loading && products.length > 0">
+            <label>Hiển thị:</label>
+            <select [(ngModel)]="pageSize" (change)="changePageSize()" [disabled]="loading">
+              <option [value]="12">12 sản phẩm</option>
+              <option [value]="24">24 sản phẩm</option>
+              <option [value]="48">48 sản phẩm</option>
+            </select>
+          </div>
+        </main>
+      </div>
+    </div>
+  
