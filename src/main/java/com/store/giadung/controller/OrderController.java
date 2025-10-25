@@ -4,6 +4,10 @@ package com.store.giadung.controller;
 import com.store.giadung.entity.Order;
 import com.store.giadung.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.data.domain.Page;
+// import org.springframework.data.domain.PageRequest;
+// import org.springframework.data.domain.Pageable;
+// import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -132,4 +136,21 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting order");
         }
     }
-}
+    // // OrderController.java
+    // @GetMapping
+    // public ResponseEntity<Page<Order>> getAllOrders(
+    //     @RequestParam(defaultValue = "0") int page,
+    //     @RequestParam(defaultValue = "10") int size,
+    //     @RequestParam(defaultValue = "createdAt") String sortBy,
+    //     @RequestParam(defaultValue = "DESC") String direction
+    // ) {
+    //     Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") 
+    //         ? Sort.Direction.DESC 
+    //         : Sort.Direction.ASC;
+        
+    //     Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+    //     Page<Order> orders = orderService.getAllOrdersPaginated(pageable);
+        
+    //     return ResponseEntity.ok(orders);
+    // }
+    }

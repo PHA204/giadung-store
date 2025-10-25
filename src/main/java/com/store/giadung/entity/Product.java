@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "products")
@@ -22,14 +22,14 @@ public class Product {
     @Column(name = "product_name", nullable = false, length = 150)
     private String productName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)  // ← Đổi sang EAGER
     @JoinColumn(name = "category_id")
-    @JsonIgnoreProperties("products")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})  // ← THÊM
     private Category category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)  // ← Đổi sang EAGER
     @JoinColumn(name = "brand_id")
-    @JsonIgnoreProperties("products")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})  // ← THÊM
     private Brand brand;
 
     @Column(columnDefinition = "TEXT")

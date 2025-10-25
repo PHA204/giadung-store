@@ -20,7 +20,7 @@
       <label for="pageSize">Hiển thị:</label>
       <select 
         id="pageSize" 
-        [(ngModel)]="itemsPerPage" 
+        [(ngModel)]="pageSize" 
         (change)="onPageSizeChange()"
         class="page-size-select">
         <option *ngFor="let size of pageSizeOptions" [value]="size">
@@ -42,7 +42,7 @@
   <div class="table-wrapper" *ngIf="!loading && !errorMessage">
     <div class="table-info">
       <span class="total-records">
-        Hiển thị {{ getDisplayRange() }} / {{ filteredProducts.length }} sản phẩm
+        Hiển thị {{ getDisplayRange() }} / {{ totalItems }} sản phẩm
       </span>
     </div>
 
@@ -50,21 +50,33 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>ID</th>
+            <th (click)="onSortChange('productId')" class="sortable">
+              ID {{ getSortIcon('productId') }}
+            </th>
             <th>Hình ảnh</th>
-            <th>Tên Sản Phẩm</th>
+            <th (click)="onSortChange('productName')" class="sortable">
+              Tên Sản Phẩm {{ getSortIcon('productName') }}
+            </th>
             <th>Danh Mục</th>
             <th>Thương Hiệu</th>
-            <th>Giá</th>
+            <th (click)="onSortChange('price')" class="sortable">
+              Giá {{ getSortIcon('price') }}
+            </th>
             <th>Giảm Giá</th>
-            <th>Tồn Kho</th>
-            <th>Đánh Giá</th>
-            <th>Ngày Tạo</th>
+            <th (click)="onSortChange('stockQuantity')" class="sortable">
+              Tồn Kho {{ getSortIcon('stockQuantity') }}
+            </th>
+            <th (click)="onSortChange('ratingAvg')" class="sortable">
+              Đánh Giá {{ getSortIcon('ratingAvg') }}
+            </th>
+            <th (click)="onSortChange('createdAt')" class="sortable">
+              Ngày Tạo {{ getSortIcon('createdAt') }}
+            </th>
             <th>Hành Động</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let product of paginatedProducts">
+          <tr *ngFor="let product of products">
             <td>{{ product.productId }}</td>
             <td>
               <img 
@@ -138,7 +150,7 @@
         </tbody>
       </table>
 
-      <div class="no-data" *ngIf="paginatedProducts.length === 0">
+      <div class="no-data" *ngIf="products.length === 0">
         <p>Không tìm thấy sản phẩm nào</p>
       </div>
     </div>
@@ -147,7 +159,7 @@
     <div class="pagination" *ngIf="totalPages > 1">
       <button 
         class="pagination-btn"
-        [disabled]="currentPage === 1"
+        [disabled]="currentPage === 0"
         (click)="onPageChange(currentPage - 1)">
         ← Trước
       </button>
@@ -160,16 +172,33 @@
           [class.ellipsis]="page === -1"
           [disabled]="page === -1"
           (click)="page !== -1 && onPageChange(page)">
-          {{ page === -1 ? '...' : page }}
+          {{ page === -1 ? '...' : (page + 1) }}
         </button>
       </div>
 
       <button 
         class="pagination-btn"
-        [disabled]="currentPage === totalPages"
+        [disabled]="currentPage === totalPages - 1"
         (click)="onPageChange(currentPage + 1)">
         Sau →
       </button>
     </div>
   </div>
 </div>
+
+<!-- CSS cho sortable columns -->
+<style>
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.sortable:hover {
+  background-color: #e5e7eb !important;
+}
+
+.sortable:active {
+  background-color: #d1d5db !important;
+}
+</style>

@@ -8,6 +8,8 @@ import com.store.giadung.repository.OrderRepository;
 import com.store.giadung.repository.UserRepository;
 import com.store.giadung.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.data.domain.Page;
+// import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -138,4 +140,7 @@ public class OrderService {
         
         orderRepository.deleteById(id);
     }
+    // public Page<Order> getAllOrdersPaginated(Pageable pageable) {
+    // return orderRepository.findAll(pageable);
+    //}
 }

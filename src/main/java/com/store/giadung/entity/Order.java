@@ -40,7 +40,7 @@ public class Order {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JsonManagedReference
+    @JsonManagedReference  // ← Đã có rồi, giữ nguyên
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
     // Helper methods

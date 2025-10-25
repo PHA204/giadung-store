@@ -535,4 +535,4 @@ export class OrderFormComponent implements OnInit {
       currency: 'VND'
     }).format(price);
   }
-}
+} 

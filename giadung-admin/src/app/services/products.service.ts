@@ -1,9 +1,17 @@
 // giadung-admin/src/app/services/products.service.ts
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 import { Product } from '../models/product.model';
+
+export interface PagedResponse<T> {
+  products: T[];
+  currentPage: number;
+  totalItems: number;
+  totalPages: number;
+  pageSize: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -13,17 +21,44 @@ export class ProductsService {
   private apiUrl = `${environment.apiUrl}/products`;
 
   /**
-   * Lấy tất cả sản phẩm
+   * NEW: Get products với pagination (RECOMMENDED)
    */
-  getAllProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.apiUrl);
+  getProductsPaginated(
+    page: number = 0, 
+    size: number = 10, 
+    sortBy: string = 'createdAt', 
+    direction: string = 'desc'
+  ): Observable<PagedResponse<Product>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('direction', direction);
+
+    return this.http.get<PagedResponse<Product>>(this.apiUrl, { params });
   }
 
   /**
-   * Lấy sản phẩm theo ID
+   * OLD: Get tất cả sản phẩm (không khuyến khích nếu nhiều data)
+   * Chỉ dùng cho dropdown/select
+   */
+  getAllProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/all`);
+  }
+
+  /**
+   * Get sản phẩm theo ID
    */
   getProductById(id: number): Observable<Product> {
     return this.http.get<Product>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Search products
+   */
+  searchProducts(keyword: string): Observable<Product[]> {
+    const params = new HttpParams().set('keyword', keyword);
+    return this.http.get<Product[]>(`${this.apiUrl}/search`, { params });
   }
 
   /**
@@ -48,21 +83,14 @@ export class ProductsService {
   }
 
   /**
-   * Tìm kiếm sản phẩm theo tên
-   */
-  searchProducts(keyword: string): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.apiUrl}/search?keyword=${keyword}`);
-  }
-
-  /**
-   * Lấy sản phẩm theo category
+   * Get products by category
    */
   getProductsByCategory(categoryId: number): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/category/${categoryId}`);
   }
 
   /**
-   * Lấy sản phẩm theo brand
+   * Get products by brand
    */
   getProductsByBrand(brandId: number): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/brand/${brandId}`);
