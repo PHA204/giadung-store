@@ -1,1 +1,230 @@
-<p>register works!</p>
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1>🏠 Gia Dụng Store</h1>
+      <p class="subtitle">Tạo tài khoản mới</p>
+    </div>
+
+    <!-- ALERT MESSAGES -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+      <span>❌</span>
+      <p>{{ errorMessage }}</p>
+      <button class="close-btn" (click)="errorMessage = null">×</button>
+    </div>
+
+    <div *ngIf="successMessage" class="alert alert-success">
+      <span>✓</span>
+      <p>{{ successMessage }}</p>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      
+      <!-- Full Name -->
+      <div class="form-group">
+        <label for="fullName">
+          Họ và tên <span class="required">*</span>
+        </label>
+        <div class="input-wrapper">
+          <span class="input-icon">👤</span>
+          <input
+            type="text"
+            id="fullName"
+            formControlName="fullName"
+            placeholder="Nguyễn Văn A"
+            [class.error]="submitted && f['fullName'].errors"
+            autocomplete="name">
+        </div>
+        <div *ngIf="submitted && f['fullName'].errors" class="error-message">
+          <span *ngIf="f['fullName'].errors['required']">Họ tên là bắt buộc</span>
+          <span *ngIf="f['fullName'].errors['minlength']">Họ tên tối thiểu 3 ký tự</span>
+          <span *ngIf="f['fullName'].errors['maxlength']">Họ tên tối đa 100 ký tự</span>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">
+          Email <span class="required">*</span>
+        </label>
+        <div class="input-wrapper">
+          <span class="input-icon">📧</span>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            placeholder="example@email.com"
+            [class.error]="submitted && f['email'].errors"
+            autocomplete="email">
+        </div>
+        <div *ngIf="submitted && f['email'].errors" class="error-message">
+          <span *ngIf="f['email'].errors['required']">Email là bắt buộc</span>
+          <span *ngIf="f['email'].errors['email']">Email không hợp lệ</span>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">
+          Mật khẩu <span class="required">*</span>
+        </label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            formControlName="password"
+            placeholder="••••••••"
+            [class.error]="submitted && f['password'].errors"
+            autocomplete="new-password">
+          <button 
+            type="button" 
+            class="toggle-password"
+            (click)="showPassword = !showPassword">
+            {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+          </button>
+        </div>
+        <div *ngIf="submitted && f['password'].errors" class="error-message">
+          <span *ngIf="f['password'].errors['required']">Mật khẩu là bắt buộc</span>
+          <span *ngIf="f['password'].errors['minlength']">Mật khẩu tối thiểu 6 ký tự</span>
+        </div>
+        <div class="password-strength">
+          <small>Mật khẩu nên có ít nhất 6 ký tự</small>
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label for="confirmPassword">
+          Xác nhận mật khẩu <span class="required">*</span>
+        </label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            placeholder="••••••••"
+            [class.error]="submitted && (f['confirmPassword'].errors || !passwordsMatch)"
+            autocomplete="new-password">
+          <button 
+            type="button" 
+            class="toggle-password"
+            (click)="showConfirmPassword = !showConfirmPassword">
+            {{ showConfirmPassword ? '👁️' : '👁️‍🗨️' }}
+          </button>
+        </div>
+        <div *ngIf="submitted && f['confirmPassword'].errors" class="error-message">
+          <span *ngIf="f['confirmPassword'].errors['required']">Vui lòng xác nhận mật khẩu</span>
+        </div>
+        <div *ngIf="submitted && !passwordsMatch && !f['confirmPassword'].errors" class="error-message">
+          <span>Mật khẩu không khớp</span>
+        </div>
+      </div>
+
+      <!-- Phone Number (Optional) -->
+      <div class="form-group">
+        <label for="phoneNumber">
+          Số điện thoại
+        </label>
+        <div class="input-wrapper">
+          <span class="input-icon">📱</span>
+          <input
+            type="tel"
+            id="phoneNumber"
+            formControlName="phoneNumber"
+            placeholder="0123456789"
+            [class.error]="submitted && f['phoneNumber'].errors"
+            autocomplete="tel">
+        </div>
+        <div *ngIf="submitted && f['phoneNumber'].errors" class="error-message">
+          <span *ngIf="f['phoneNumber'].errors['pattern']">Số điện thoại không hợp lệ (10-11 số)</span>
+        </div>
+      </div>
+
+      <!-- Address (Optional) -->
+      <div class="form-group">
+        <label for="address">
+          Địa chỉ
+        </label>
+        <div class="input-wrapper">
+          <span class="input-icon">📍</span>
+          <input
+            type="text"
+            id="address"
+            formControlName="address"
+            placeholder="123 Đường ABC, Quận 1, TP.HCM"
+            autocomplete="street-address">
+        </div>
+      </div>
+
+      <!-- Terms & Conditions -->
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="agreeTerms">
+          <span>
+            Tôi đồng ý với 
+            <a href="#" class="link">Điều khoản dịch vụ</a> và 
+            <a href="#" class="link">Chính sách bảo mật</a>
+            <span class="required">*</span>
+          </span>
+        </label>
+        <div *ngIf="submitted && f['agreeTerms'].errors" class="error-message">
+          <span *ngIf="f['agreeTerms'].errors['required']">Bạn phải đồng ý với điều khoản để đăng ký</span>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button 
+        type="submit" 
+        class="btn btn-primary btn-block"
+        [disabled]="loading">
+        <span *ngIf="!loading">Đăng ký</span>
+        <span *ngIf="loading" class="loading-text">
+          <span class="spinner"></span> Đang xử lý...
+        </span>
+      </button>
+
+      <div class="divider">
+        <span>hoặc</span>
+      </div>
+
+      <div class="social-login">
+        <button type="button" class="btn btn-social btn-google" disabled>
+          <img src="https://www.google.com/favicon.ico" alt="Google" width="20">
+          Google
+        </button>
+        <button type="button" class="btn btn-social btn-facebook" disabled>
+          <img src="https://www.facebook.com/favicon.ico" alt="Facebook" width="20">
+          Facebook
+        </button>
+      </div>
+    </form>
+
+    <div class="auth-footer">
+      <p>
+        Đã có tài khoản? 
+        <a routerLink="/login" class="link">Đăng nhập ngay</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- FEATURES SIDEBAR -->
+  <div class="features-sidebar">
+    <div class="feature-card">
+      <div class="feature-icon">✨</div>
+      <h3>Tích điểm thưởng</h3>
+      <p>Nhận điểm thưởng cho mỗi đơn hàng và đổi quà hấp dẫn</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎁</div>
+      <h3>Ưu đãi độc quyền</h3>
+      <p>Giảm giá đặc biệt dành riêng cho thành viên mới</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3>Bảo mật tuyệt đối</h3>
+      <p>Thông tin cá nhân được mã hóa và bảo vệ an toàn</p>
+    </div>
+  </div>
+</div>

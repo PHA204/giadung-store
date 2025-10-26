@@ -15,6 +15,7 @@
                 type="text" 
                 [(ngModel)]="searchKeyword" 
                 (ngModelChange)="onSearchChange($event)"
+                (keyup.enter)="searchProducts()"
                 placeholder="Tìm sản phẩm..."
                 [disabled]="loading">
               <button class="btn-search" (click)="searchProducts()" [disabled]="loading">

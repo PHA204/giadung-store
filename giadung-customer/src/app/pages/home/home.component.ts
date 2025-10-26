@@ -184,12 +184,15 @@ import { Category } from '../../models/category.model';
     }
 
     .product-card {
-      background: white;
-      border-radius: 0.5rem;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      transition: transform 0.3s;
-    }
+  background: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 
     .product-card:hover {
       transform: translateY(-5px);
@@ -206,15 +209,23 @@ import { Category } from '../../models/category.model';
       object-fit: cover;
     }
 
-    .product-info {
-      padding: 1rem;
-    }
+   .product-info {
+  padding: 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
 
-    .product-info h3 {
-      font-size: 1.1rem;
-      margin-bottom: 0.5rem;
-      color: #333;
-    }
+   .product-info h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+  min-height: 2.6rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
     .product-meta {
       display: flex;
@@ -230,12 +241,13 @@ import { Category } from '../../models/category.model';
       color: #666;
     }
 
-    .price-section {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
+   .price-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  margin-top: auto;
+}
 
     .price {
       font-size: 1.5rem;
@@ -257,16 +269,18 @@ import { Category } from '../../models/category.model';
     }
 
     .btn-add-cart {
-      width: 100%;
-      padding: 0.75rem;
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 0 0 0.5rem 0.5rem;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background 0.3s;
-    }
+  width: 100%;
+  padding: 0.75rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s;
+  margin-top: auto;
+  flex-shrink: 0;
+}
 
     .btn-add-cart:hover:not(:disabled) {
       background: #1e40af;

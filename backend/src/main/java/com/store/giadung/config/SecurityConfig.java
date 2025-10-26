@@ -21,10 +21,15 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/**").permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers("/api/users/register").permitAll()  // ✅ Public endpoint
+                .requestMatchers("/api/users/login").permitAll()     // ✅ Public endpoint
+                .requestMatchers("/api/products/**").permitAll()     // ✅ Public endpoint
+                .requestMatchers("/api/categories/**").permitAll()   // ✅ Public endpoint
+                .requestMatchers("/api/brands/**").permitAll()       // ✅ Public endpoint
+                .requestMatchers("/api/**").authenticated()          // Các endpoint khác cần auth
+                .anyRequest().permitAll()
             )
-            .httpBasic(basic -> {});
+            .httpBasic(basic -> basic.disable());  // ✅ TẮT Basic Auth
         
         return http.build();
     }
@@ -39,7 +44,7 @@ public class SecurityConfig {
             "http://localhost:8000",
             "http://127.0.0.1:8000"
         ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
