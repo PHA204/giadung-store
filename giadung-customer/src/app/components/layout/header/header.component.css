@@ -81,50 +81,150 @@
   font-weight: bold;
 }
 
+/* ✅ FIXED USER MENU */
 .user-menu {
   position: relative;
 }
 
 .user-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   background: none;
-  border: none;
+  border: 2px solid #e5e7eb;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.95rem;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
+  font-weight: 500;
+  color: #374151;
 }
 
 .user-button:hover {
   background-color: #f3f4f6;
+  border-color: #d1d5db;
 }
 
+.arrow {
+  font-size: 0.7rem;
+  transition: transform 0.3s;
+}
+
+.arrow.open {
+  transform: rotate(180deg);
+}
+
+/* ✅ DROPDOWN MENU - FIXED */
 .dropdown-menu {
-  display: none;
   position: absolute;
-  top: 100%;
+  top: calc(100% + 0.5rem);
   right: 0;
   background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  min-width: 200px;
-  margin-top: 0.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  min-width: 280px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
 }
 
-.user-menu:hover .dropdown-menu {
-  display: block;
+.dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
-.dropdown-menu a {
-  display: block;
-  padding: 0.75rem 1rem;
+/* ✅ DROPDOWN HEADER */
+.dropdown-header {
+  padding: 1rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0.25rem 0 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ✅ DROPDOWN ITEMS */
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
   text-decoration: none;
-  color: #333;
-  transition: background-color 0.3s;
+  color: #374151;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
-.dropdown-menu a:hover {
+.dropdown-item:hover {
   background-color: #f3f4f6;
+}
+
+.item-icon {
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+}
+
+.logout-item {
+  color: #ef4444;
+}
+
+.logout-item:hover {
+  background-color: #fef2f2;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 0.5rem 0;
 }
 
 .btn {
@@ -158,5 +258,10 @@
     width: 100%;
     margin-top: 1rem;
     justify-content: center;
+  }
+
+  .dropdown-menu {
+    right: -20px;
+    min-width: 260px;
   }
 }

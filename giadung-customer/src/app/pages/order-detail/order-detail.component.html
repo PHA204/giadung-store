@@ -1,1 +1,150 @@
-<p>order-detail works!</p>
+<div class="order-detail-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Đang tải thông tin đơn hàng...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <div class="error-icon">⚠️</div>
+    <h3>Có lỗi xảy ra</h3>
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="goBack()">Quay lại danh sách</button>
+  </div>
+
+  <!-- Order Detail Content -->
+  <div *ngIf="order && !loading && !error" class="order-detail-content">
+    <!-- Header -->
+    <div class="detail-header">
+      <button class="btn-back" (click)="goBack()">
+        ← Quay lại
+      </button>
+      <div class="header-info">
+        <h1>Chi tiết đơn hàng #{{ order.orderId }}</h1>
+        <p class="order-date">Đặt ngày: {{ formatDate(order.createdAt) }}</p>
+      </div>
+      <div class="order-status-badge" 
+           [style.background-color]="getStatusInfo(order.currentStatus).color + '20'"
+           [style.color]="getStatusInfo(order.currentStatus).color">
+        <span class="status-icon">{{ getStatusInfo(order.currentStatus).icon }}</span>
+        <span class="status-text">{{ getStatusInfo(order.currentStatus).label }}</span>
+      </div>
+    </div>
+
+    <!-- Order Progress -->
+    <div class="order-progress">
+      <h3>Trạng thái đơn hàng</h3>
+      <div class="progress-timeline">
+        <div *ngFor="let status of statusOptions; let i = index" 
+             class="progress-step"
+             [class.active]="i <= getCurrentStatusIndex()"
+             [class.current]="i === getCurrentStatusIndex()">
+          <div class="step-icon">
+            <span>{{ status.icon }}</span>
+          </div>
+          <div class="step-content">
+            <p class="step-label">{{ status.label }}</p>
+          </div>
+          <div *ngIf="i < statusOptions.length - 1" class="step-connector"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <!-- Left Column -->
+      <div class="detail-left">
+        <!-- Order Items -->
+        <div class="detail-section">
+          <h3>Sản phẩm đã đặt</h3>
+          <div class="order-items-list">
+            <div *ngFor="let item of order.orderDetails" class="order-item">
+              <img [src]="item.product?.imageUrl || 'https://via.placeholder.com/100'" 
+                   [alt]="item.product?.productName"
+                   class="item-image">
+              <div class="item-details">
+                <h4 class="item-name">{{ item.product?.productName }}</h4>
+                <p class="item-meta">
+                  <span class="item-category">{{ item.product?.category?.categoryName }}</span>
+                  <span class="item-brand">{{ item.product?.brand?.brandName }}</span>
+                </p>
+                <p class="item-price-info">
+                  {{ formatPrice(item.unitPrice) }} × {{ item.quantity }}
+                </p>
+              </div>
+              <div class="item-total">
+                {{ formatPrice(item.unitPrice * item.quantity) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping Address -->
+        <div class="detail-section">
+          <h3>🚚 Địa chỉ giao hàng</h3>
+          <div class="address-box">
+            <p class="customer-name">{{ order.user?.fullName }}</p>
+            <p class="customer-phone">{{ order.user?.phoneNumber }}</p>
+            <p class="customer-address">{{ order.shippingAddress }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Summary -->
+      <div class="detail-right">
+        <div class="summary-card">
+          <h3>Thông tin thanh toán</h3>
+          
+          <div class="summary-section">
+            <div class="summary-row">
+              <span class="label">Tạm tính:</span>
+              <span class="value">{{ formatPrice(calculateSubtotal()) }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Phí vận chuyển:</span>
+              <span class="value free">Miễn phí</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-row total">
+              <span class="label">Tổng cộng:</span>
+              <span class="value">{{ formatPrice(order.totalAmount) }}</span>
+            </div>
+          </div>
+
+          <div class="payment-info">
+            <h4>Phương thức thanh toán</h4>
+            <p class="payment-method">
+              {{ order.paymentMethod === 'COD' ? '💵 Thanh toán khi nhận hàng' : '💳 ' + order.paymentMethod }}
+            </p>
+          </div>
+
+          <!-- Actions -->
+          <div class="order-actions">
+            <button 
+              *ngIf="canCancelOrder()"
+              class="btn btn-danger btn-block"
+              (click)="cancelOrder()">
+              ❌ Hủy đơn hàng
+            </button>
+            <a 
+              *ngIf="order.currentStatus?.toUpperCase() === 'DELIVERED'"
+              routerLink="/products" 
+              class="btn btn-primary btn-block">
+              🛒 Mua lại
+            </a>
+            <button class="btn btn-secondary btn-block" (click)="goBack()">
+              📋 Xem đơn hàng khác
+            </button>
+          </div>
+
+          <!-- Customer Support -->
+          <div class="support-box">
+            <p class="support-title">Cần hỗ trợ?</p>
+            <p class="support-text">Liên hệ: <strong>1900-xxxx</strong></p>
+            <p class="support-text">Email: <strong>support&#64;giadung.vn</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

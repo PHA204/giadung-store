@@ -215,24 +215,29 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 }
 
- private createOrderFromForm(): any {
+private createOrderFromForm(): any {
   const formValue = this.checkoutForm.value;
   const fullAddress = `${formValue.address}, ${formValue.ward}, ${formValue.district}, ${formValue.city}`;
 
+  // ✅ GỬI object User và Product đầy đủ
   const orderDetails = this.cartItems
     .filter(item => item.product?.productId)
     .map(item => ({
-      product: { productId: item.product.productId },  // ← Gửi object Product
+      product: {
+        productId: item.product.productId
+      },
       quantity: item.quantity,
       unitPrice: this.calculateItemPrice(item)
     }));
 
   return {
-    user: { userId: this.currentUser!.userId },  // ← Gửi object User thay vì userId
+    user: {
+      userId: this.currentUser!.userId
+    },
     totalAmount: this.getTotal(),
     paymentMethod: formValue.paymentMethod,
     shippingAddress: fullAddress,
-    currentStatus: 'PENDING',
+    currentStatus: 'pending',  // ✅ Viết thường
     orderDetails: orderDetails
   };
 }

@@ -3,6 +3,7 @@ package com.store.giadung.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,12 +16,14 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password"})
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "category", "brand"})
     private Product product;
 
     @Column(nullable = false)
@@ -33,52 +36,52 @@ public class Review {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-	public Long getReviewId() {
-		return reviewId;
-	}
+    // Getters and Setters
+    public Long getReviewId() {
+        return reviewId;
+    }
 
-	public void setReviewId(Long reviewId) {
-		this.reviewId = reviewId;
-	}
+    public void setReviewId(Long reviewId) {
+        this.reviewId = reviewId;
+    }
 
-	public User getUser() {
-		return user;
-	}
+    public User getUser() {
+        return user;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-	public Product getProduct() {
-		return product;
-	}
+    public Product getProduct() {
+        return product;
+    }
 
-	public void setProduct(Product product) {
-		this.product = product;
-	}
+    public void setProduct(Product product) {
+        this.product = product;
+    }
 
-	public Integer getRating() {
-		return rating;
-	}
+    public Integer getRating() {
+        return rating;
+    }
 
-	public void setRating(Integer rating) {
-		this.rating = rating;
-	}
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
 
-	public String getComment() {
-		return comment;
-	}
+    public String getComment() {
+        return comment;
+    }
 
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
-

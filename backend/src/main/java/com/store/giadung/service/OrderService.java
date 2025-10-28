@@ -49,52 +49,64 @@ public class OrderService {
     }
 
     @Transactional
-    public Order saveOrder(Order order) {
-        // Validate user
-        if (order.getUser() != null && order.getUser().getUserId() != null) {
-            User user = userRepository.findById(order.getUser().getUserId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            order.setUser(user);
-        }
-
-        // Process order details
-        if (order.getOrderDetails() != null && !order.getOrderDetails().isEmpty()) {
-            BigDecimal totalAmount = BigDecimal.ZERO;
-            
-            for (OrderDetail detail : order.getOrderDetails()) {
-                // Set order reference
-                detail.setOrder(order);
-                
-                // Validate and get product
-                if (detail.getProduct() != null && detail.getProduct().getProductId() != null) {
-                    Product product = productRepository.findById(detail.getProduct().getProductId())
-                            .orElseThrow(() -> new RuntimeException("Product not found: " + detail.getProduct().getProductId()));
-                    
-                    detail.setProduct(product);
-                    
-                    // Set unit price if not set
-                    if (detail.getUnitPrice() == null) {
-                        detail.setUnitPrice(product.getPrice());
-                    }
-                    
-                    // Update stock quantity
-                    int newStock = product.getStockQuantity() - detail.getQuantity();
-                    if (newStock < 0) {
-                        throw new RuntimeException("Not enough stock for product: " + product.getProductName());
-                    }
-                    product.setStockQuantity(newStock);
-                    productRepository.save(product);
-                    
-                    // Calculate total
-                    totalAmount = totalAmount.add(detail.getSubtotal());
-                }
-            }
-            
-            order.setTotalAmount(totalAmount);
-        }
-
-        return orderRepository.save(order);
+public Order saveOrder(Order order) {
+    // ✅ Validate user
+    if (order.getUser() != null && order.getUser().getUserId() != null) {
+        User user = userRepository.findById(order.getUser().getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + order.getUser().getUserId()));
+        order.setUser(user);
+    } else {
+        throw new RuntimeException("User information is required");
     }
+
+    // ✅ Validate orderDetails
+    if (order.getOrderDetails() == null || order.getOrderDetails().isEmpty()) {
+        throw new RuntimeException("Order must contain at least one item");
+    }
+
+    BigDecimal totalAmount = BigDecimal.ZERO;
+    
+    for (OrderDetail detail : order.getOrderDetails()) {
+        // Set order reference
+        detail.setOrder(order);
+        
+        // ✅ Validate and get product
+        if (detail.getProduct() == null || detail.getProduct().getProductId() == null) {
+            throw new RuntimeException("Product information is missing");
+        }
+
+        Product product = productRepository.findById(detail.getProduct().getProductId())
+                .orElseThrow(() -> new RuntimeException("Product not found: " + detail.getProduct().getProductId()));
+        
+        detail.setProduct(product);
+        
+        // Set unit price if not set
+        if (detail.getUnitPrice() == null) {
+            detail.setUnitPrice(product.getPrice());
+        }
+        
+        // ✅ Validate quantity
+        if (detail.getQuantity() == null || detail.getQuantity() <= 0) {
+            throw new RuntimeException("Invalid quantity for product: " + product.getProductName());
+        }
+        
+        // Update stock quantity
+        int newStock = product.getStockQuantity() - detail.getQuantity();
+        if (newStock < 0) {
+            throw new RuntimeException("Not enough stock for product: " + product.getProductName());
+        }
+        product.setStockQuantity(newStock);
+        productRepository.save(product);
+        
+        // Calculate total
+        totalAmount = totalAmount.add(detail.getSubtotal());
+    }
+    
+    order.setTotalAmount(totalAmount);
+    order.setCurrentStatus(order.getCurrentStatus() != null ? order.getCurrentStatus() : "pending");
+    
+    return orderRepository.save(order);
+}
 
     @Transactional
     public Order updateOrder(Long id, Order updatedOrder) {

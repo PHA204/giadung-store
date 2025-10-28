@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
@@ -33,16 +33,44 @@ import { User } from '../../../models/user.model';
 
           <div class="header-actions">
             <a routerLink="/cart" class="cart-icon">
-              🛒 <span class="cart-count">{{ cartCount }}</span>
+              🛒 
+              <span class="cart-count" *ngIf="cartCount > 0">{{ cartCount }}</span>
             </a>
 
+            <!-- ✅ FIXED USER MENU -->
             <div class="user-menu" *ngIf="currentUser; else loginButton">
-              <button class="user-button">
+              <button class="user-button" (click)="toggleDropdown($event)">
                 👤 {{ currentUser.fullName }}
+                <span class="arrow" [class.open]="isDropdownOpen">▼</span>
               </button>
-              <div class="dropdown-menu">
-                <a routerLink="/orders">Đơn hàng của tôi</a>
-                <a href="#" (click)="logout($event)">Đăng xuất</a>
+              
+              <!-- ✅ Dropdown sẽ không biến mất khi di chuột vào -->
+              <div class="dropdown-menu" 
+                   [class.show]="isDropdownOpen"
+                   (click)="$event.stopPropagation()">
+                <div class="dropdown-header">
+                  <div class="user-info">
+                    <div class="user-avatar">{{ getInitials(currentUser.fullName) }}</div>
+                    <div class="user-details">
+                      <p class="user-name">{{ currentUser.fullName }}</p>
+                      <p class="user-email">{{ currentUser.email }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="dropdown-divider"></div>
+                <a routerLink="/orders" class="dropdown-item" (click)="closeDropdown()">
+                  <span class="item-icon">📦</span>
+                  <span>Đơn hàng của tôi</span>
+                </a>
+                <a routerLink="/profile" class="dropdown-item" (click)="closeDropdown()">
+                  <span class="item-icon">👤</span>
+                  <span>Thông tin cá nhân</span>
+                </a>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item logout-item" (click)="logout($event)">
+                  <span class="item-icon">🚪</span>
+                  <span>Đăng xuất</span>
+                </button>
               </div>
             </div>
 
@@ -63,6 +91,13 @@ export class HeaderComponent implements OnInit {
 
   currentUser: User | null = null;
   cartCount: number = 0;
+  isDropdownOpen = false;
+
+  // ✅ Đóng dropdown khi click ra ngoài
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    this.isDropdownOpen = false;
+  }
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
@@ -74,9 +109,29 @@ export class HeaderComponent implements OnInit {
     });
   }
 
+  toggleDropdown(event: Event): void {
+    event.stopPropagation();
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  closeDropdown(): void {
+    this.isDropdownOpen = false;
+  }
+
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  }
+
   logout(event: Event): void {
     event.preventDefault();
+    event.stopPropagation();
     this.authService.logout();
+    this.closeDropdown();
     this.router.navigate(['/']);
   }
 }

@@ -169,21 +169,25 @@ export class OrdersService {
   /**
    * Map Order model to OrderRequest for API
    */
-  private mapOrderToRequest(order: Order): OrderRequest {
-  const orderDetails: OrderDetailRequest[] = (order.orderDetails || [])
+  private mapOrderToRequest(order: Order): any {
+  const orderDetails = (order.orderDetails || [])
     .filter(detail => detail.product?.productId)
     .map(detail => ({
-      productId: detail.product.productId!,
+      product: {
+        productId: detail.product.productId!
+      },
       quantity: detail.quantity,
       unitPrice: detail.unitPrice
     }));
 
-  // ← XÓA phần này nếu có
   return {
-    userId: order.user?.userId,
+    user: {
+      userId: order.user?.userId
+    },
     totalAmount: order.totalAmount,
     paymentMethod: order.paymentMethod,
     shippingAddress: order.shippingAddress,
+    currentStatus: order.currentStatus?.toLowerCase() || 'pending',
     orderDetails: orderDetails
   };
 }

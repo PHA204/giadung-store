@@ -1,1 +1,169 @@
-<p>orders works!</p>
+<div class="orders-container">
+  <!-- Header -->
+  <div class="orders-header">
+    <h1>📦 Đơn hàng của tôi</h1>
+    <p class="subtitle">Quản lý và theo dõi đơn hàng của bạn</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Đang tải đơn hàng...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <div class="error-icon">⚠️</div>
+    <h3>Có lỗi xảy ra</h3>
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="loadOrders()">Thử lại</button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error" class="orders-content">
+    <!-- Filters -->
+    <div class="filters-section">
+      <div class="status-filters">
+        <button 
+          *ngFor="let status of statusOptions" 
+          class="status-filter-btn"
+          [class.active]="selectedStatus === status.value"
+          (click)="selectedStatus = status.value; onStatusChange()">
+          <span class="status-icon">{{ status.icon }}</span>
+          <span class="status-label">{{ status.label }}</span>
+          <span class="status-count" *ngIf="status.value === 'ALL'">
+            ({{ orders.length }})
+          </span>
+        </button>
+      </div>
+
+      <div class="search-box">
+        <input 
+          type="text" 
+          [(ngModel)]="searchKeyword"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Tìm theo mã đơn hàng hoặc địa chỉ..."
+          class="search-input">
+        <button class="search-btn">🔍</button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredOrders.length === 0" class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>Chưa có đơn hàng nào</h3>
+      <p *ngIf="selectedStatus !== 'ALL'">
+        Không có đơn hàng nào ở trạng thái này
+      </p>
+      <p *ngIf="selectedStatus === 'ALL'">
+        Hãy khám phá và đặt hàng ngay!
+      </p>
+      <a routerLink="/products" class="btn btn-primary">
+        Khám phá sản phẩm
+      </a>
+    </div>
+
+    <!-- Orders List -->
+    <div *ngIf="filteredOrders.length > 0" class="orders-list">
+      <div *ngFor="let order of filteredOrders; trackBy: trackByOrderId" class="order-card">
+        <!-- Order Header -->
+        <div class="order-header">
+          <div class="order-info">
+            <h3 class="order-id">Đơn hàng #{{ order.orderId }}</h3>
+            <span class="order-date">{{ formatDate(order.createdAt) }}</span>
+          </div>
+          <div class="order-status" [style.background-color]="getStatusInfo(order.currentStatus).color + '20'"
+                                     [style.color]="getStatusInfo(order.currentStatus).color">
+            <span class="status-icon">{{ getStatusInfo(order.currentStatus).icon }}</span>
+            <span class="status-text">{{ getStatusInfo(order.currentStatus).label }}</span>
+          </div>
+        </div>
+
+        <!-- Order Items Preview -->
+        <div class="order-items">
+          <div *ngFor="let item of order.orderDetails?.slice(0, 3); let i = index" class="order-item-preview">
+           <img [src]="item.product.imageUrl || 'https://via.placeholder.com/60'" 
+                [alt]="item.product.productName"
+                class="item-image">
+             <div class="item-info">
+            <p class="item-name">{{ item.product.productName }}</p>
+            <div class="item-info">
+              <p class="item-name">{{ item.product.productName }}</p>
+              <p class="item-quantity">x{{ item.quantity }}</p>
+            </div>
+            <p class="item-price">{{ formatPrice(item.unitPrice * item.quantity) }}</p>
+          </div>
+          <div *ngIf="(order.orderDetails?.length || 0) > 3" class="more-items">
+            +{{ (order.orderDetails?.length || 0) - 3 }} sản phẩm khác
+          </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="order-summary">
+          <div class="summary-row">
+            <span class="summary-label">Số lượng:</span>
+            <span class="summary-value">{{ getOrderItemCount(order) }} sản phẩm</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Phương thức thanh toán:</span>
+            <span class="summary-value payment-method">
+              {{ order.paymentMethod === 'COD' ? '💵 Thanh toán khi nhận hàng' : '💳 ' + order.paymentMethod }}
+            </span>
+          </div>
+          <div class="summary-row total">
+            <span class="summary-label">Tổng tiền:</span>
+            <span class="summary-value total-amount">{{ formatPrice(order.totalAmount) }}</span>
+          </div>
+        </div>
+
+        <!-- Order Actions -->
+        <div class="order-actions">
+          <a [routerLink]="['/orders', order.orderId]" class="btn btn-secondary">
+            Chi tiết
+          </a>
+          <button 
+            *ngIf="canCancelOrder(order)"
+            class="btn btn-danger"
+            (click)="cancelOrder(order)">
+            Hủy đơn
+          </button>
+          <a 
+            *ngIf="order.currentStatus?.toUpperCase() === 'DELIVERED'"
+            routerLink="/products" 
+            class="btn btn-primary">
+            Mua lại
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button 
+        class="btn-page" 
+        (click)="goToPage(currentPage - 1)"
+        [disabled]="currentPage === 0 || loading">
+        ← Trước
+      </button>
+
+      <div class="page-numbers">
+        <button 
+          *ngFor="let page of getPageNumbers()" 
+          class="btn-page-number"
+          [class.active]="page === currentPage"
+          (click)="goToPage(page)"
+          [disabled]="loading">
+          {{ page + 1 }}
+        </button>
+      </div>
+
+      <button 
+        class="btn-page" 
+        (click)="goToPage(currentPage + 1)"
+        [disabled]="currentPage === totalPages - 1 || loading">
+        Sau →
+      </button>
+    </div>
+  </div>
+</div>
+
