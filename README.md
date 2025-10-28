@@ -522,7 +522,7 @@ ng serve --port 5500
 
 Mở trình duyệt:
 ```
-http://localhost:4201
+http://localhost:5500
 ```
 
 ✅ **Customer Frontend chạy thành công!**
@@ -548,7 +548,7 @@ npm start
 3. **Terminal 3 - Customer Frontend:**
 ```bash
 cd giadung-customer
-npm start -- --port 4201
+npm start -- --port 5500
 ```
 
 ### Danh sách URL:
@@ -557,7 +557,7 @@ npm start -- --port 4201
 |----------|-----|-------|
 | Backend API | http://localhost:8080 | Spring Boot REST API |
 | Admin Panel | http://localhost:4200 | Quản lý admin |
-| Customer Site | http://localhost:4201 | Trang khách hàng |
+| Customer Site | http://localhost:5500 | Trang khách hàng |
 
 ---
 
