@@ -21,15 +21,18 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/users/register").permitAll()  // ✅ Public endpoint
-                .requestMatchers("/api/users/login").permitAll()     // ✅ Public endpoint
-                .requestMatchers("/api/products/**").permitAll()     // ✅ Public endpoint
-                .requestMatchers("/api/categories/**").permitAll()   // ✅ Public endpoint
-                .requestMatchers("/api/brands/**").permitAll()       // ✅ Public endpoint
-                .requestMatchers("/api/**").authenticated()          // Các endpoint khác cần auth
+                .requestMatchers("/api/users/register").permitAll()
+                .requestMatchers("/api/users/login").permitAll()
+                .requestMatchers("/api/products/**").permitAll()
+                .requestMatchers("/api/categories/**").permitAll()
+                .requestMatchers("/api/brands/**").permitAll()
+                .requestMatchers("/api/orders/**").permitAll()      // ← THÊM DÒNG NÀY
+                .requestMatchers("/api/reviews/**").permitAll()     // ← THÊM DÒNG NÀY (optional)
+                .requestMatchers("/api/cart/**").permitAll()        // ← THÊM DÒNG NÀY (optional)
+                .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )
-            .httpBasic(basic -> basic.disable());  // ✅ TẮT Basic Auth
+            .httpBasic(basic -> basic.disable());
         
         return http.build();
     }

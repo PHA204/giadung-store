@@ -1,1 +1,210 @@
-<p>product-detail works!</p>
+    <div class="product-detail-container">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Đang tải thông tin sản phẩm...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error && !loading" class="error-state">
+        <div class="error-icon">❌</div>
+        <h2>Không tìm thấy sản phẩm</h2>
+        <p>{{ error }}</p>
+        <button class="btn btn-primary" routerLink="/products">
+          ← Quay lại danh sách
+        </button>
+      </div>
+
+      <!-- Product Content -->
+      <div *ngIf="product && !loading" class="product-content">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <a routerLink="/">Trang chủ</a>
+          <span>/</span>
+          <a routerLink="/products">Sản phẩm</a>
+          <span>/</span>
+          <span class="current">{{ product.productName }}</span>
+        </nav>
+
+        <div class="product-layout">
+          <!-- Left: Image Gallery -->
+          <div class="product-gallery">
+            <div class="main-image">
+              <img 
+                [src]="product.imageUrl || 'https://via.placeholder.com/600'" 
+                [alt]="product.productName">
+              <div class="image-badges">
+                <span class="badge badge-discount" *ngIf="product.discount && product.discount > 0">
+                  -{{ product.discount }}%
+                </span>
+                <span class="badge badge-new" *ngIf="isNewProduct()">
+                  Mới
+                </span>
+              </div>
+            </div>
+            <!-- Thumbnail gallery (có thể mở rộng sau) -->
+            <div class="thumbnail-gallery">
+              <img [src]="product.imageUrl || 'https://via.placeholder.com/100'" 
+                   class="thumbnail active"
+                   [alt]="product.productName">
+            </div>
+          </div>
+
+          <!-- Right: Product Info -->
+          <div class="product-info-section">
+            <div class="product-header">
+              <h1 class="product-title">{{ product.productName }}</h1>
+              <div class="product-meta">
+                <span class="category-badge">
+                  📦 {{ product.category?.categoryName }}
+                </span>
+                <span class="brand-badge">
+                  🏷️ {{ product.brand?.brandName }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Rating -->
+            <div class="rating-section" *ngIf="product.ratingAvg">
+              <div class="stars">
+                {{ getStarDisplay(product.ratingAvg) }}
+              </div>
+              <span class="rating-value">{{ product.ratingAvg }}/5</span>
+              <span class="review-count">(150 đánh giá)</span>
+            </div>
+
+            <!-- Price -->
+            <div class="price-section">
+              <div class="price-main">
+                <span class="current-price">
+                  {{ formatPrice(calculateDiscountedPrice()) }}
+                </span>
+                <span class="original-price" *ngIf="product.discount && product.discount > 0">
+                  {{ formatPrice(product.price) }}
+                </span>
+              </div>
+              <div class="savings" *ngIf="product.discount && product.discount > 0">
+                Tiết kiệm: {{ formatPrice(product.price - calculateDiscountedPrice()) }}
+              </div>
+            </div>
+
+            <!-- Stock Status -->
+            <div class="stock-section">
+              <div class="stock-status" [class.in-stock]="product.stockQuantity > 0"
+                                        [class.low-stock]="product.stockQuantity > 0 && product.stockQuantity <= 10"
+                                        [class.out-stock]="product.stockQuantity === 0">
+                <span class="icon">
+                  {{ product.stockQuantity > 0 ? '✓' : '✗' }}
+                </span>
+                <span *ngIf="product.stockQuantity > 10">
+                  Còn hàng ({{ product.stockQuantity }} sản phẩm)
+                </span>
+                <span *ngIf="product.stockQuantity > 0 && product.stockQuantity <= 10">
+                  Sắp hết hàng (Chỉ còn {{ product.stockQuantity }} sản phẩm)
+                </span>
+                <span *ngIf="product.stockQuantity === 0">
+                  Hết hàng
+                </span>
+              </div>
+            </div>
+
+            <!-- Quantity Selector -->
+            <div class="quantity-section" *ngIf="product.stockQuantity > 0">
+              <label>Số lượng:</label>
+              <div class="quantity-controls">
+                <button class="btn-quantity" (click)="decreaseQuantity()" [disabled]="quantity <= 1">
+                  −
+                </button>
+                <input type="number" 
+                       [(ngModel)]="quantity" 
+                       [min]="1" 
+                       [max]="product.stockQuantity"
+                       class="quantity-input">
+                <button class="btn-quantity" (click)="increaseQuantity()" 
+                        [disabled]="quantity >= product.stockQuantity">
+                  +
+                </button>
+              </div>
+              <span class="quantity-hint">
+                Tối đa: {{ product.stockQuantity }}
+              </span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+              <button class="btn btn-primary btn-add-cart" 
+                      (click)="addToCart()"
+                      [disabled]="product.stockQuantity === 0 || addingToCart">
+                <span *ngIf="!addingToCart">
+                  🛒 Thêm vào giỏ hàng
+                </span>
+                <span *ngIf="addingToCart">
+                  <span class="spinner-small"></span> Đang thêm...
+                </span>
+              </button>
+              <button class="btn btn-secondary btn-buy-now"
+                      (click)="buyNow()"
+                      [disabled]="product.stockQuantity === 0">
+                ⚡ Mua ngay
+              </button>
+            </div>
+
+            <!-- Features -->
+            <div class="features-section">
+              <div class="feature-item">
+                <span class="feature-icon">🚚</span>
+                <div class="feature-text">
+                  <strong>Miễn phí vận chuyển</strong>
+                  <small>Đơn hàng từ 500.000đ</small>
+                </div>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">↩️</span>
+                <div class="feature-text">
+                  <strong>Đổi trả trong 7 ngày</strong>
+                  <small>Nếu có lỗi từ nhà sản xuất</small>
+                </div>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">🔒</span>
+                <div class="feature-text">
+                  <strong>Thanh toán bảo mật</strong>
+                  <small>Nhiều hình thức thanh toán</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Description -->
+        <div class="product-description">
+          <div class="tabs">
+            <button class="tab-button active">Mô tả sản phẩm</button>
+            <button class="tab-button">Thông số kỹ thuật</button>
+            <button class="tab-button">Đánh giá (150)</button>
+          </div>
+          <div class="tab-content">
+            <div class="description-content">
+              <h3>Mô tả chi tiết</h3>
+              <p>{{ product.description || 'Đang cập nhật thông tin chi tiết sản phẩm...' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Related Products -->
+        <div class="related-products">
+          <h2>Sản phẩm tương tự</h2>
+          <div class="products-grid">
+            <!-- Sẽ load từ API sau -->
+            <div class="placeholder-card">
+              <p>Đang tải sản phẩm liên quan...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success Toast -->
+      <div *ngIf="showSuccessToast" class="toast-notification success">
+        ✓ Đã thêm vào giỏ hàng thành công!
+      </div>
+    </div>

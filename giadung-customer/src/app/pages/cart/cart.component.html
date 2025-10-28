@@ -1,1 +1,158 @@
-<p>cart works!</p>
+    <div class="cart-container">
+      <div class="cart-header">
+        <h1>🛒 Giỏ hàng của bạn</h1>
+        <p class="item-count">{{ cartItems.length }} sản phẩm</p>
+      </div>
+
+      <!-- Empty Cart -->
+      <div *ngIf="cartItems.length === 0" class="empty-cart">
+        <div class="empty-icon">🛒</div>
+        <h2>Giỏ hàng trống</h2>
+        <p>Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm</p>
+        <a routerLink="/products" class="btn btn-primary">
+          Khám phá sản phẩm
+        </a>
+      </div>
+
+      <!-- Cart Content -->
+      <div *ngIf="cartItems.length > 0" class="cart-content">
+        <div class="cart-items">
+          <!-- Cart Item -->
+          <div *ngFor="let item of cartItems; trackBy: trackByProduct" class="cart-item">
+            <div class="item-image">
+              <a [routerLink]="['/products', item.product.productId]">
+                <img [src]="item.product.imageUrl || 'https://via.placeholder.com/150'" 
+                     [alt]="item.product.productName">
+              </a>
+            </div>
+
+            <div class="item-details">
+              <a [routerLink]="['/products', item.product.productId]" class="item-name">
+                {{ item.product.productName }}
+              </a>
+              <div class="item-meta">
+                <span class="category">{{ item.product.category?.categoryName }}</span>
+                <span class="brand">{{ item.product.brand?.brandName }}</span>
+              </div>
+              <div class="item-stock" [class.in-stock]="item.product.stockQuantity > 0"
+                                      [class.out-stock]="item.product.stockQuantity === 0">
+                {{ item.product.stockQuantity > 0 ? 'Còn hàng' : 'Hết hàng' }}
+              </div>
+            </div>
+
+            <div class="item-price">
+              <div class="price-main">
+                {{ formatPrice(calculateItemPrice(item)) }}
+              </div>
+              <div class="price-original" *ngIf="item.product.discount && item.product.discount > 0">
+                {{ formatPrice(item.product.price) }}
+              </div>
+            </div>
+
+            <div class="item-quantity">
+              <div class="quantity-controls">
+                <button class="btn-quantity" (click)="decreaseQuantity(item)" 
+                        [disabled]="item.quantity <= 1">
+                  −
+                </button>
+                <input type="number" 
+                       [(ngModel)]="item.quantity"
+                       (ngModelChange)="updateQuantity(item)"
+                       [min]="1"
+                       [max]="item.product.stockQuantity"
+                       class="quantity-input">
+                <button class="btn-quantity" (click)="increaseQuantity(item)"
+                        [disabled]="item.quantity >= item.product.stockQuantity">
+                  +
+                </button>
+              </div>
+            </div>
+
+            <div class="item-total">
+              <div class="total-price">
+                {{ formatPrice(calculateItemTotal(item)) }}
+              </div>
+            </div>
+
+            <div class="item-actions">
+              <button class="btn-remove" (click)="removeItem(item)" title="Xóa sản phẩm">
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cart Summary -->
+        <div class="cart-summary">
+          <div class="summary-card">
+            <h3>Tóm tắt đơn hàng</h3>
+            
+            <div class="summary-row">
+              <span>Tạm tính ({{ getTotalItems() }} sản phẩm)</span>
+              <span>{{ formatPrice(getSubtotal()) }}</span>
+            </div>
+
+            <div class="summary-row">
+              <span>Giảm giá</span>
+              <span class="discount">-{{ formatPrice(getDiscount()) }}</span>
+            </div>
+
+            <div class="summary-row shipping">
+              <span>Phí vận chuyển</span>
+              <span *ngIf="getSubtotal() >= 500000" class="free">Miễn phí</span>
+              <span *ngIf="getSubtotal() < 500000">{{ formatPrice(30000) }}</span>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <div class="summary-row total">
+              <span>Tổng cộng</span>
+              <span class="total-amount">{{ formatPrice(getTotal()) }}</span>
+            </div>
+
+            <div class="free-shipping-notice" *ngIf="getSubtotal() < 500000">
+              <span class="icon">🚚</span>
+              <span>Mua thêm {{ formatPrice(500000 - getSubtotal()) }} để được miễn phí vận chuyển</span>
+            </div>
+
+            <button class="btn btn-primary btn-checkout" (click)="proceedToCheckout()">
+              Tiến hành thanh toán
+            </button>
+
+            <a routerLink="/products" class="btn btn-secondary">
+              ← Tiếp tục mua sắm
+            </a>
+
+            <div class="payment-methods">
+              <p>Chấp nhận thanh toán:</p>
+              <div class="methods">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/MasterCard_Logo.svg" alt="Mastercard" height="24">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" height="24">
+                <span class="method-badge">COD</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="voucher-section">
+            <h4>Mã giảm giá</h4>
+            <div class="voucher-input">
+              <input type="text" placeholder="Nhập mã giảm giá" [(ngModel)]="voucherCode">
+              <button class="btn-apply" (click)="applyVoucher()">Áp dụng</button>
+            </div>
+            <p *ngIf="voucherError" class="voucher-error">{{ voucherError }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmation Modal -->
+      <div *ngIf="showRemoveConfirm" class="modal-overlay" (click)="cancelRemove()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <h3>Xác nhận xóa</h3>
+          <p>Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?</p>
+          <div class="modal-actions">
+            <button class="btn btn-secondary" (click)="cancelRemove()">Hủy</button>
+            <button class="btn btn-danger" (click)="confirmRemove()">Xóa</button>
+          </div>
+        </div>
+      </div>
+    </div>

@@ -1,1 +1,258 @@
-<p>checkout works!</p>
+<div class="checkout-container">
+  <!-- Success Message -->
+  <div *ngIf="orderSuccess" class="success-message">
+    <div class="success-icon">✅</div>
+    <h2>Đặt hàng thành công!</h2>
+    <p>Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ liên hệ với bạn sớm nhất.</p>
+    <div class="loading-spinner">Đang chuyển hướng...</div>
+  </div>
+
+  <!-- Checkout Form -->
+  <div *ngIf="!orderSuccess" class="checkout-content">
+    <!-- Header -->
+    <div class="checkout-header">
+      <button class="btn-back" (click)="goToCart()">
+        ← Quay lại giỏ hàng
+      </button>
+      <h1>Thanh toán</h1>
+      <p class="step-indicator">
+        <span class="step active">1. Giỏ hàng</span>
+        <span class="step-divider">→</span>
+        <span class="step active">2. Thanh toán</span>
+        <span class="step-divider">→</span>
+        <span class="step">3. Hoàn tất</span>
+      </p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="orderError" class="error-banner">
+      <span class="error-icon">⚠️</span>
+      <span>{{ orderError }}</span>
+      <button class="btn-close" (click)="orderError = null">×</button>
+    </div>
+
+    <div class="checkout-grid">
+      <!-- Left Column - Forms -->
+      <div class="checkout-forms">
+        <form [formGroup]="checkoutForm" (ngSubmit)="submitOrder()">
+          <!-- Customer Information -->
+          <div class="form-section">
+            <h2>Thông tin khách hàng</h2>
+            
+            <div class="form-group">
+              <label for="fullName">Họ và tên <span class="required">*</span></label>
+              <input 
+                type="text" 
+                id="fullName" 
+                formControlName="fullName"
+                [class.invalid]="isFieldInvalid('fullName')"
+                placeholder="Nguyễn Văn A">
+              <span class="error-message" *ngIf="isFieldInvalid('fullName')">
+                {{ getFieldError('fullName') }}
+              </span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input 
+                  type="email" 
+                  id="email" 
+                  formControlName="email"
+                  [class.invalid]="isFieldInvalid('email')"
+                  placeholder="email@example.com">
+                <span class="error-message" *ngIf="isFieldInvalid('email')">
+                  {{ getFieldError('email') }}
+                </span>
+              </div>
+
+              <div class="form-group">
+                <label for="phoneNumber">Số điện thoại <span class="required">*</span></label>
+                <input 
+                  type="tel" 
+                  id="phoneNumber" 
+                  formControlName="phoneNumber"
+                  [class.invalid]="isFieldInvalid('phoneNumber')"
+                  placeholder="0901234567">
+                <span class="error-message" *ngIf="isFieldInvalid('phoneNumber')">
+                  {{ getFieldError('phoneNumber') }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shipping Address -->
+          <div class="form-section">
+            <h2>Địa chỉ giao hàng</h2>
+            
+            <div class="form-group">
+              <label for="address">Địa chỉ <span class="required">*</span></label>
+              <input 
+                type="text" 
+                id="address" 
+                formControlName="address"
+                [class.invalid]="isFieldInvalid('address')"
+                placeholder="Số nhà, tên đường">
+              <span class="error-message" *ngIf="isFieldInvalid('address')">
+                {{ getFieldError('address') }}
+              </span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="city">Tỉnh/Thành phố <span class="required">*</span></label>
+                <select 
+                  id="city" 
+                  formControlName="city"
+                  [class.invalid]="isFieldInvalid('city')">
+                  <option value="">Chọn Tỉnh/Thành phố</option>
+                  <option value="Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                  <option value="Hà Nội">Hà Nội</option>
+                  <option value="Đà Nẵng">Đà Nẵng</option>
+                  <option value="Cần Thơ">Cần Thơ</option>
+                  <option value="Khác">Khác</option>
+                </select>
+                <span class="error-message" *ngIf="isFieldInvalid('city')">
+                  {{ getFieldError('city') }}
+                </span>
+              </div>
+
+              <div class="form-group">
+                <label for="district">Quận/Huyện <span class="required">*</span></label>
+                <input 
+                  type="text" 
+                  id="district" 
+                  formControlName="district"
+                  [class.invalid]="isFieldInvalid('district')"
+                  placeholder="Quận/Huyện">
+                <span class="error-message" *ngIf="isFieldInvalid('district')">
+                  {{ getFieldError('district') }}
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="ward">Phường/Xã <span class="required">*</span></label>
+              <input 
+                type="text" 
+                id="ward" 
+                formControlName="ward"
+                [class.invalid]="isFieldInvalid('ward')"
+                placeholder="Phường/Xã">
+              <span class="error-message" *ngIf="isFieldInvalid('ward')">
+                {{ getFieldError('ward') }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="form-section">
+            <h2>Phương thức thanh toán</h2>
+            
+            <div class="payment-methods">
+              <label 
+                *ngFor="let method of paymentMethods" 
+                class="payment-option"
+                [class.selected]="checkoutForm.get('paymentMethod')?.value === method.value">
+                <input 
+                  type="radio" 
+                  formControlName="paymentMethod" 
+                  [value]="method.value">
+                <span class="payment-icon">{{ method.icon }}</span>
+                <span class="payment-label">{{ method.label }}</span>
+                <span class="checkmark">✓</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="form-section">
+            <h2>Ghi chú đơn hàng (Tùy chọn)</h2>
+            <div class="form-group">
+              <textarea 
+                id="notes" 
+                formControlName="notes"
+                rows="4"
+                placeholder="Ghi chú về đơn hàng, ví dụ: thời gian hay chỉ dẫn địa điểm giao hàng chi tiết hơn."></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Right Column - Order Summary -->
+      <div class="order-summary-sticky">
+        <div class="order-summary">
+          <h2>Đơn hàng của bạn</h2>
+
+          <!-- Order Items -->
+          <div class="order-items">
+            <div *ngFor="let item of cartItems" class="order-item">
+              <div class="item-image">
+                <img [src]="item.product.imageUrl || 'https://via.placeholder.com/80'" 
+                     [alt]="item.product.productName">
+                <span class="item-quantity">{{ item.quantity }}</span>
+              </div>
+              <div class="item-info">
+                <p class="item-name">{{ item.product.productName }}</p>
+                <p class="item-price">{{ formatPrice(calculateItemTotal(item)) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Summary Details -->
+          <div class="summary-details">
+            <div class="summary-row">
+              <span>Tạm tính ({{ getTotalItems() }} sản phẩm)</span>
+              <span>{{ formatPrice(getSubtotal()) }}</span>
+            </div>
+
+            <div class="summary-row" *ngIf="getDiscount() > 0">
+              <span>Giảm giá</span>
+              <span class="discount">-{{ formatPrice(getDiscount()) }}</span>
+            </div>
+
+            <div class="summary-row">
+              <span>Phí vận chuyển</span>
+              <span [class.free]="getShippingFee() === 0">
+                {{ getShippingFee() === 0 ? 'Miễn phí' : formatPrice(getShippingFee()) }}
+              </span>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <div class="summary-row total">
+              <span>Tổng cộng</span>
+              <span class="total-amount">{{ formatPrice(getTotal()) }}</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <button 
+            type="button"
+            class="btn btn-primary btn-order" 
+            (click)="submitOrder()"
+            [disabled]="isProcessing || checkoutForm.invalid">
+            <span *ngIf="!isProcessing">Đặt hàng</span>
+            <span *ngIf="isProcessing">
+              <span class="spinner"></span> Đang xử lý...
+            </span>
+          </button>
+
+          <button 
+            type="button"
+            class="btn btn-secondary" 
+            (click)="goToCart()"
+            [disabled]="isProcessing">
+            ← Quay lại giỏ hàng
+          </button>
+
+          <!-- Security Badge -->
+          <div class="security-badge">
+            <span class="icon">🔒</span>
+            <span>Thanh toán an toàn & bảo mật</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
