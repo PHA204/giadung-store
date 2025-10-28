@@ -508,12 +508,12 @@ export const environment = {
 ### Bước 4: Chạy Customer Frontend
 
 ```bash
-npm start -- --port 4201
+npm start -- --port 5500
 ```
 
 **Hoặc:**
 ```bash
-ng serve --port 4201
+ng serve --port 5500
 ```
 
 **Lưu ý:** Dùng port 4201 để tránh conflict với Admin (port 4200)
