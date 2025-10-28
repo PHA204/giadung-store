@@ -701,7 +701,7 @@ export JAVA_HOME=/path/to/jdk-17
 - [ ] MySQL đang chạy và có database `giadungstore_DB`
 - [ ] Backend chạy thành công tại `http://localhost:8080`
 - [ ] Admin frontend chạy tại `http://localhost:4200`
-- [ ] Customer frontend chạy tại `http://localhost:4201`
+- [ ] Customer frontend chạy tại `http://localhost:5500`
 - [ ] Có thể truy cập API: `http://localhost:8080/api/products`
 - [ ] Không có lỗi CORS trong console
 - [ ] Có thể đăng ký/đăng nhập user
