@@ -237,7 +237,6 @@ private createOrderFromForm(): any {
     totalAmount: this.getTotal(),
     paymentMethod: formValue.paymentMethod,
     shippingAddress: fullAddress,
-    currentStatus: 'pending',  // ✅ Viết thường
     orderDetails: orderDetails
   };
 }

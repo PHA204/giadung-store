@@ -80,17 +80,18 @@
               </span>
             </td>
             <td>
-              <select 
-                [value]="order.currentStatus"
-                (change)="onUpdateStatus(order.orderId!, $any($event.target).value)"
-                [class]="'status-select ' + getStatusBadgeClass(order.currentStatus || 'pending')">
-                <option *ngFor="let status of statusOptions" 
-                        [value]="status.value" 
-                        [disabled]="status.value === 'all'">
-                  {{ status.label }}
-                </option>
-              </select>
-            </td>
+                <select 
+                  [(ngModel)]="order.currentStatus"
+                  (change)="onUpdateStatus(order.orderId!, order.currentStatus!)"
+                  [class]="'status-select ' + getStatusBadgeClass(order.currentStatus || 'pending')">
+                  <option *ngFor="let status of statusOptions" 
+                          [value]="status.value"
+                          [selected]="status.value === order.currentStatus"
+                          [disabled]="status.value === 'all'">
+                    {{ status.label }}
+                  </option>
+                </select>
+              </td>
             <td>{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
             <td>
               <div class="action-buttons">

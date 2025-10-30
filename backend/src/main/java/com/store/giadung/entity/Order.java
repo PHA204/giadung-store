@@ -27,13 +27,13 @@ public class Order {
     private BigDecimal totalAmount;
 
     @Column(name = "payment_method", length = 30)
-    private String paymentMethod = "COD";
+    private String paymentMethod;
 
     @Column(name = "shipping_address", columnDefinition = "TEXT", nullable = false)
     private String shippingAddress;
 
     @Column(name = "current_status", length = 20)
-    private String currentStatus = "pending";
+    private String currentStatus;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

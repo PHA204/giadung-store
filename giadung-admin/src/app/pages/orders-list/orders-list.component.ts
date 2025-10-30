@@ -33,13 +33,14 @@ export class OrdersListComponent implements OnInit {
 
   // Status options
   statusOptions = [
-    { value: 'all', label: 'Tất cả' },
-    { value: 'pending', label: 'Chờ xử lý' },
-    { value: 'processing', label: 'Đang xử lý' },
-    { value: 'shipped', label: 'Đã gửi hàng' },
-    { value: 'delivered', label: 'Đã giao hàng' },
-    { value: 'cancelled', label: 'Đã hủy' }
-  ];
+  { value: 'all', label: 'Tất cả' },
+  { value: 'pending', label: 'Chờ xử lý' },
+  { value: 'processing', label: 'Đang xử lý' },
+  { value: 'confirmed', label: 'Đã xác nhận' },  // ← Thêm nếu cần
+  { value: 'shipped', label: 'Đã gửi hàng' },
+  { value: 'delivered', label: 'Đã giao hàng' },
+  { value: 'cancelled', label: 'Đã hủy' },
+];
 
   ngOnInit(): void {
     this.loadOrders();
@@ -156,20 +157,29 @@ export class OrdersListComponent implements OnInit {
   }
 
   getStatusBadgeClass(status: string): string {
-    const statusMap: { [key: string]: string } = {
-      'pending': 'badge-warning',
-      'processing': 'badge-info',
-      'shipped': 'badge-primary',
-      'delivered': 'badge-success',
-      'cancelled': 'badge-danger'
-    };
-    return statusMap[status] || 'badge-secondary';
-  }
+  const statusMap: { [key: string]: string } = {
+    'pending': 'badge-warning',
+    'processing': 'badge-info',
+    'confirmed': 'badge-info',     // ← Thêm
+    'shipped': 'badge-primary',
+    'delivered': 'badge-success',
+    'cancelled': 'badge-danger',    
+  };
+  return statusMap[status?.toLowerCase()] || 'badge-secondary';
+}
 
   getStatusLabel(status: string): string {
-    const option = this.statusOptions.find(opt => opt.value === status);
-    return option ? option.label : status;
-  }
+  // Mapping trạng thái từ DB sang label tiếng Việt
+  const statusMap: { [key: string]: string } = {
+    'pending': 'Chờ xử lý',
+    'processing': 'Đang xử lý',
+    'shipped': 'Đã gửi hàng',
+    'delivered': 'Đã giao hàng',
+    'cancelled': 'Đã hủy'
+  };
+  
+  return statusMap[status.toLowerCase()] || status; // Trả về giá trị DB nếu không tìm thấy mapping
+}
 
   onUpdateStatus(orderId: number, newStatus: string): void {
     this.ordersService.updateOrderStatus(orderId, newStatus).subscribe({
